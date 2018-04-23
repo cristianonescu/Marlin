@@ -85,5 +85,6 @@ extern uint8_t job_recovery_commands_count;
 
 void do_print_job_recovery();
 void save_job_recovery_info();
+void debug_print_job_recovery(const bool recovery);
 
 #endif // _POWER_LOSS_RECOVERY_H_

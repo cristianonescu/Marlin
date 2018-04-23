@@ -372,6 +372,15 @@
   float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
 #endif
 
+#ifdef ANYCUBIC_TFT_MODEL
+#include "AnycubicTFT.h"
+#endif
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+  int PowerInt= 6;
+#endif
+
+
 bool Running = true;
 
 uint8_t marlin_debug_flags = DEBUG_NONE;
@@ -783,6 +792,14 @@ void report_current_position_detail();
     print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); }while(0)
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY) 
+  void setup_OutageTestPin(){
+  pinMode(OUTAGETEST_PIN,INPUT);
+  pinMode(OUTAGECON_PIN,OUTPUT);
+  WRITE(OUTAGECON_PIN,LOW);
+  }
+#endif
+  
 /**
  * sync_plan_position
  *
@@ -3521,6 +3538,65 @@ inline void gcode_G4() {
   }
 
 #endif // BEZIER_CURVE_SUPPORT
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+
+     void PowerKill()
+  {
+          #ifdef POWER_LOSS_RECOVERY
+            //debug_print_job_recovery(false);
+            SERIAL_ECHOLNPGM("G6 POWER LOSS RECOVERY ACTIVATED");
+            save_job_recovery_info();
+          #endif
+
+  }
+
+     void PowerRecoveryInfo()
+  {
+          #ifdef DEBUG_POWER_LOSS_RECOVERY
+            //debug_print_job_recovery(false);
+            SERIAL_ECHOLNPGM("G7 POWER LOSS RECOVERY INFO");
+            debug_print_job_recovery(true);
+          #endif
+  }
+
+     void PowerRecovery()
+  {
+          #ifdef POWER_LOSS_RECOVERY
+            //debug_print_job_recovery(false);
+            SERIAL_ECHOLNPGM("G8 POWER LOSS RECOVERY FROM SD");
+            //lcd_sdcard_recover_job();
+            do_print_job_recovery();
+          #endif
+
+  }
+
+  inline void gcode_G6() {
+	#ifdef POWER_LOSS_RECOVERY 
+      WRITE(OUTAGECON_PIN,HIGH);
+      if(1==READ(OUTAGETEST_PIN))
+      {
+          #ifdef POWER_LOSS_RECOVERY
+            attachInterrupt(PowerInt,PowerKill,CHANGE);     //INITIAL SET 
+            SERIAL_ECHOLNPGM("G6 POWER LOSS RECOVERY ACTIVATED");
+          #endif                     
+      }    
+       #endif 
+  }
+  
+  inline void gcode_G7() {
+  #ifdef POWER_LOSS_RECOVERY       
+      PowerRecoveryInfo();
+  #endif 
+  }
+
+  inline void gcode_G8() {
+  #ifdef POWER_LOSS_RECOVERY       
+      PowerRecovery();
+  #endif 
+  }
+
+#endif // POWER_LOSS_RECOVERY  
 
 #if ENABLED(FWRETRACT)
 
@@ -14381,9 +14457,9 @@ void loop() {
       }
       else {
         process_next_command();
-        #if ENABLED(POWER_LOSS_RECOVERY)
-          if (card.cardOK && card.sdprinting) save_job_recovery_info();
-        #endif
+        //#if ENABLED(POWER_LOSS_RECOVERY)
+        //  if (card.cardOK && card.sdprinting) save_job_recovery_info();
+        //#endif
       }
 
     #else
