@@ -66,14 +66,6 @@
 #if ENABLED(THERMAL_PROTECTION_HOTENDS)
   #define THERMAL_PROTECTION_PERIOD 40        // Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
-  
-// I3 Mega Protection settings :
-
-//#if ENABLED(THERMAL_PROTECTION_HOTENDS)
-//  #define THERMAL_PROTECTION_PERIOD 250        // Seconds-
-//  #define THERMAL_PROTECTION_HYSTERESIS 45     // Degrees Celsius
-
-// I3 MEGA END
 
   /**
    * Whenever an M104, M109, or M303 increases the target temperature, the
@@ -537,6 +529,16 @@
   //#define MENU_ADDAUTOSTART
 
   /**
+   * Continue after Power-Loss (Creality3D)
+   *
+   * Store the current state to the SD Card at the start of each layer
+   * during SD printing. If the recovery file is found at boot time, present
+   * an option on the LCD screen to continue the print from the last-known
+   * point in the file.
+   */
+  #define POWER_LOSS_RECOVERY
+
+  /**
    * Sort SD file listings in alphabetical order.
    *
    * With this option enabled, items on SD cards will be sorted
@@ -694,7 +696,7 @@
  * K=0 means advance disabled.
  * See Marlin documentation for calibration instructions.
  */
-#define LIN_ADVANCE
+//#define LIN_ADVANCE
 
 #if ENABLED(LIN_ADVANCE)
   #define LIN_ADVANCE_K 0

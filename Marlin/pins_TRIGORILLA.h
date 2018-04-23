@@ -6,7 +6,7 @@
 #define BOARD_NAME         "TRIGORILLA"
 #define LARGE_FLASH        true
 
-// Divers
+// Misc PIN
 #define BUZZER 			   31
 #define SDPOWER            -1
 #define SDSS               53
@@ -19,7 +19,7 @@
 	#define OUTAGECON_PIN   58
 #endif
 
-// Moteurs
+// Steppers
 #define X_STEP_PIN         54
 #define X_DIR_PIN          55
 #define X_ENABLE_PIN       38
@@ -46,7 +46,7 @@
 
 // EndStops
 #define X_MIN_PIN           3
-#define Y_MIN_PIN          42 // Origine 42.
+#define Y_MIN_PIN          42
 #define Z_MIN_PIN          18
 
 #define X_MAX_PIN          43
@@ -59,15 +59,15 @@
 #define CONTROLLER_FAN_PIN  7
 
 // Heaters
-#define HEATER_0_PIN       10 // Extrudeur 1.
-#define HEATER_1_PIN       45 // Extrudeur 2.
+#define HEATER_0_PIN       10 // Extruder 1.
+#define HEATER_1_PIN       45 // Extruder 2.
 #define HEATER_BED_PIN      8
 
-// Sondes température
-#define TEMP_0_PIN         13   // Température Ext1.
-#define TEMP_1_PIN         15   // Température Ext2.
-#define TEMP_2_PIN         12   // Température Ext3.
-#define TEMP_BED_PIN       14   // Température Bed. 
+// Temp sensors
+#define TEMP_0_PIN         13   // Temp Ext1.
+#define TEMP_1_PIN         15   // Temp Ext2.
+#define TEMP_2_PIN         12   // Temp Ext3.
+#define TEMP_BED_PIN       14   // Temp Bed. 
 
 // Servos
 #ifdef NUM_SERVOS
@@ -91,6 +91,11 @@
   #define SD_DETECT_PIN    49
 #endif
 
+#if defined(POWER_LOSS_RECOVERY)
+   #define OUTAGETEST_PIN       79
+   #define OUTAGECON_PIN        58
+#endif
+  
 // LCD
 #if defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL) || defined(ANYCUBIC_TFT_MODEL)
 	#define KILL_PIN        41
@@ -204,4 +209,4 @@
 		#define LCD_PINS_D7 29
 		
 	#endif
-#endif	
+#endif

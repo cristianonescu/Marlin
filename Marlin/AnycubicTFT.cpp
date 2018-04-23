@@ -191,7 +191,7 @@ void AnycubicTFTClass::HandleSpecialMenu()
 {
   if(strcmp(SelectedDirectory, "<special menu>")==0) {
     SpecialMenu=true;
-  } else if (strcmp(SelectedDirectory, "<auto tune hotend pid>")==0) {
+  } else if (strcmp(SelectedDirectory, "<auto tune pid>")==0) {
     SERIAL_PROTOCOLLNPGM("Special Menu: Auto Tune PID");
     enqueue_and_echo_commands_P(PSTR("M303 C8 S200 U1"));
   } else if (strcmp(SelectedDirectory, "<auto bed leveling>")==0) {
@@ -209,6 +209,9 @@ void AnycubicTFTClass::HandleSpecialMenu()
   } else if (strcmp(SelectedDirectory, "<preheat 200 60>")==0) {
     SERIAL_PROTOCOLLNPGM("Special Menu: PreHeat 200 60");
     enqueue_and_echo_commands_P(PSTR("M140 S60\nM104 S200 T0"));
+  } else if (strcmp(SelectedDirectory, "<outage recover>")==0) {
+    SERIAL_PROTOCOLLNPGM("Special Menu: Outage Recover");
+    enqueue_and_echo_commands_P(PSTR("G8"));
   } else if (strcmp(SelectedDirectory, "<exit>")==0) {
     SpecialMenu=false;
   }
@@ -234,9 +237,11 @@ void AnycubicTFTClass::Ls()
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Read EEPROM>");
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Save EEPROM>");
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Save EEPROM>");
-        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Tune Hotend PID>");
-        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Tune Hotend PID>");
-        break;
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Tune PID>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Tune PID>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Outage Recover>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Outage Recover>");
+       break;
         
       default:
         break;
@@ -875,11 +880,11 @@ void AnycubicTFTClass::GetCommandFromTFT()
           case 30: // A30 assist leveling, the original function was canceled
             if(CodeSeen('S')) {
 #ifdef ANYCUBIC_TFT_DEBUG
-              SERIAL_ECHOLNPGM("TFT Entering level menue...");
+              SERIAL_ECHOLNPGM("TFT Entering level menu...");
 #endif
             } else if(CodeSeen('O')) {
 #ifdef ANYCUBIC_TFT_DEBUG
-              SERIAL_ECHOLNPGM("TFT Leveling started and movint to front left...");
+              SERIAL_ECHOLNPGM("TFT Leveling started and moving to front left...");
 #endif
               enqueue_and_echo_commands_P(PSTR("G91\nG1 Z10 F240\nG90\nG28\nG29\nG1 X20 Y20 F6000\nG1 Z0 F240"));
             } else if(CodeSeen('T')) {

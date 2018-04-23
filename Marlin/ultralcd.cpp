@@ -804,9 +804,19 @@ void kill_screen(const char* lcd_msg) {
       wait_for_heatup = false;
       lcd_setstatusPGM(PSTR(MSG_PRINT_ABORTED), -1);
       lcd_return_to_status();
+      
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        card.openJobRecoveryFile(false);
+        job_recovery_info.valid_head = job_recovery_info.valid_foot = 0;
+        (void)card.saveJobRecoveryInfo();
+        card.closeJobRecoveryFile();
+        job_recovery_commands_count = 0;
+      #endif
+
     }
 
   #endif // SDSUPPORT
+
 
   #if ENABLED(MENU_ITEM_CASE_LIGHT)
 
@@ -4653,6 +4663,15 @@ void lcd_update() {
     }
 
   #endif // SDSUPPORT && SD_DETECT_PIN
+
+  /*
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    if (job_recovery_commands_count && job_recovery_phase == JOB_RECOVERY_IDLE) {
+      lcd_goto_screen(lcd_job_recovery_menu);
+      job_recovery_phase = JOB_RECOVERY_MAYBE; // Waiting for a response
+    }
+  #endif
+  */
 
   const millis_t ms = millis();
   if (ELAPSED(ms, next_lcd_update_ms)
