@@ -21,27 +21,41 @@
  */
 
 /**
- * Arduino Mega with RAMPS v1.4 for Anycubic
- *
- * Defines RAMPS_D44_PIN 44
- * Defines FAN_PIN RAMPS_D44_PIN or -1
+ * runout.cpp - Runout sensor support
  */
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "Anycubic RAMPS 1.4"
-#endif
+#include "MarlinConfig.h"
 
-#define IS_RAMPS_EFB
-#include "pins_RAMPS_13.h"
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 
-#undef FAN_PIN
-#define RAMPS_D44_PIN      44
-#define FAN_PIN            RAMPS_D44_PIN
+#include "runout.h"
 
-#undef ORIG_E0_AUTO_FAN_PIN
-#define ORIG_E0_AUTO_FAN_PIN RAMPS_D44_PIN
+FilamentRunoutSensor runout;
 
-#undef E1_STEP_PIN
-#undef E1_DIR_PIN
-#undef E1_ENABLE_PIN
-#undef E1_CS_PIN
+bool FilamentRunoutSensor::filament_ran_out; // = false
+uint8_t FilamentRunoutSensor::runout_count; // = 0
+
+void FilamentRunoutSensor::setup() {
+
+  #if ENABLED(FIL_RUNOUT_PULLUP)
+    #define INIT_RUNOUT_PIN(P) SET_INPUT_PULLUP(P)
+  #else
+    #define INIT_RUNOUT_PIN(P) SET_INPUT(P)
+  #endif
+
+  INIT_RUNOUT_PIN(FIL_RUNOUT_PIN);
+  #if NUM_RUNOUT_SENSORS > 1
+    INIT_RUNOUT_PIN(FIL_RUNOUT2_PIN);
+    #if NUM_RUNOUT_SENSORS > 2
+      INIT_RUNOUT_PIN(FIL_RUNOUT3_PIN);
+      #if NUM_RUNOUT_SENSORS > 3
+        INIT_RUNOUT_PIN(FIL_RUNOUT4_PIN);
+        #if NUM_RUNOUT_SENSORS > 4
+          INIT_RUNOUT_PIN(FIL_RUNOUT5_PIN);
+        #endif
+      #endif
+    #endif
+  #endif
+}
+
+#endif // FILAMENT_RUNOUT_SENSOR

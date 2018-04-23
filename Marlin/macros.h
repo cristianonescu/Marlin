@@ -29,6 +29,9 @@
 #define ABC  3
 #define XYZ  3
 
+// For use in macros that take a single axis letter
+#define _AXIS(AXIS) AXIS ##_AXIS
+
 #define _XMIN_ 100
 #define _YMIN_ 200
 #define _ZMIN_ 300
@@ -214,7 +217,7 @@
 #define NEAR(x,y) NEAR_ZERO((x)-(y))
 
 #define RECIPROCAL(x) (NEAR_ZERO(x) ? 0.0 : 1.0 / (x))
-#define FIXFLOAT(f) (f + 0.00001)
+#define FIXFLOAT(f) (f + (f < 0.0 ? -0.00001 : 0.00001))
 
 //
 // Maths macros that can be overridden by HAL

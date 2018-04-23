@@ -21,14 +21,20 @@
  */
 
 /**
- * Creality Ender pin assignments
- *
- * Applies to the following boards:
- *
- *  Creality Ender-2
- *  Creality Ender-4
+ * Arduino Mega with RAMPS v1.4 for Anycubic
  */
 
-#define BOARD_NAME "Creality Ender"
+#ifndef BOARD_NAME
+  #define BOARD_NAME "Anycubic RAMPS 1.4"
+#endif
 
-#include "pins_SANGUINOLOLU_12.h"
+#define IS_RAMPS_EFB
+
+#include "pins_RAMPS_13.h"
+
+#define FAN2_PIN           44
+
+#undef E1_STEP_PIN
+#undef E1_DIR_PIN
+#undef E1_ENABLE_PIN
+#undef E1_CS_PIN

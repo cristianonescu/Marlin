@@ -21,17 +21,17 @@
  */
 
 /**
- * Fast I/O Routines
+ * Fast I/O Routines for AVR
  * Use direct port manipulation to save scads of processor time.
- * Contributed by Triffid_Hunter. Modified by Kliment and the Marlin team.
+ * Contributed by Triffid_Hunter and modified by Kliment, thinkyhead, Bob-the-Kuhn, et.al.
  */
 
-#ifndef _FASTIO_ARDUINO_H
-#define _FASTIO_ARDUINO_H
 
 #include <stdint.h>
 
 typedef int8_t pin_t;
+#ifndef _FASTIO_ARDUINO_H_
+#define _FASTIO_ARDUINO_H_
 
 #include <avr/io.h>
 
@@ -40,7 +40,6 @@ typedef int8_t pin_t;
 #define AVR_ATmega2560_FAMILY (defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__))
 #define AVR_ATmega2561_FAMILY (defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__))
 #define AVR_ATmega328_FAMILY (defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328p__))
-
 
 /**
  * Include Ports and Functions
@@ -118,7 +117,7 @@ typedef int8_t pin_t;
  */
 
 // Waveform Generation Modes
-typedef enum {
+enum WaveGenMode : char {
   WGM_NORMAL,          //  0
   WGM_PWM_PC_8,        //  1
   WGM_PWM_PC_9,        //  2
@@ -135,18 +134,18 @@ typedef enum {
   WGM_reserved,        // 13
   WGM_FAST_PWM_ICRn,   // 14  COM OCnA
   WGM_FAST_PWM_OCRnA   // 15  COM OCnA
-} WaveGenMode;
+};
 
 // Compare Modes
-typedef enum {
+enum CompareMode : char {
   COM_NORMAL,          //  0
   COM_TOGGLE,          //  1  Non-PWM: OCnx ... Both PWM (WGM 9,11,14,15): OCnA only ... else NORMAL
   COM_CLEAR_SET,       //  2  Non-PWM: OCnx ... Fast PWM: OCnx/Bottom ... PF-FC: OCnx Up/Down
   COM_SET_CLEAR        //  3  Non-PWM: OCnx ... Fast PWM: OCnx/Bottom ... PF-FC: OCnx Up/Down
-} CompareMode;
+};
 
 // Clock Sources
-typedef enum {
+enum ClockSource : char {
   CS_NONE,             //  0
   CS_PRESCALER_1,      //  1
   CS_PRESCALER_8,      //  2
@@ -155,10 +154,10 @@ typedef enum {
   CS_PRESCALER_1024,   //  5
   CS_EXT_FALLING,      //  6
   CS_EXT_RISING        //  7
-} ClockSource;
+};
 
 // Clock Sources (Timer 2 only)
-typedef enum {
+enum ClockSource2 : char {
   CS2_NONE,            //  0
   CS2_PRESCALER_1,     //  1
   CS2_PRESCALER_8,     //  2
@@ -167,9 +166,10 @@ typedef enum {
   CS2_PRESCALER_128,   //  5
   CS2_PRESCALER_256,   //  6
   CS2_PRESCALER_1024   //  7
-} ClockSource2;
+};
 
 // Get interrupt bits in an orderly way
+// Ex: cs = GET_CS(0); coma1 = GET_COM(A,1);
 #define GET_WGM(T)   (((TCCR##T##A >> WGM##T##0) & 0x3) | ((TCCR##T##B >> WGM##T##2 << 2) & 0xC))
 #define GET_CS(T)    ((TCCR##T##B >> CS##T##0) & 0x7)
 #define GET_COM(T,Q) ((TCCR##T##Q >> COM##T##Q##0) & 0x3)
@@ -184,6 +184,7 @@ typedef enum {
 #define GET_FOCC(T)  GET_FOC(T,C)
 
 // Set Wave Generation Mode bits
+// Ex: SET_WGM(5,CTC_ICRn);
 #define _SET_WGM(T,V) do{ \
     TCCR##T##A = (TCCR##T##A & ~(0x3 << WGM##T##0)) | (( int(V)       & 0x3) << WGM##T##0); \
     TCCR##T##B = (TCCR##T##B & ~(0x3 << WGM##T##2)) | (((int(V) >> 2) & 0x3) << WGM##T##2); \
@@ -191,6 +192,7 @@ typedef enum {
 #define SET_WGM(T,V) _SET_WGM(T,WGM_##V)
 
 // Set Clock Select bits
+// Ex: SET_CS3(PRESCALER_64);
 #define _SET_CS(T,V) (TCCR##T##B = (TCCR##T##B & ~(0x7 << CS##T##0)) | ((int(V) & 0x7) << CS##T##0))
 #define _SET_CS0(V) _SET_CS(0,V)
 #define _SET_CS1(V) _SET_CS(1,V)
@@ -215,6 +217,7 @@ typedef enum {
 #define SET_CS(T,V) SET_CS##T(V)
 
 // Set Compare Mode bits
+// Ex: SET_COMS(4,CLEAR_SET,CLEAR_SET,CLEAR_SET);
 #define _SET_COM(T,Q,V) (TCCR##T##Q = (TCCR##T##Q & ~(0x3 << COM##T##Q##0)) | (int(V) << COM##T##Q##0))
 #define SET_COM(T,Q,V) _SET_COM(T,Q,COM_##V)
 #define SET_COMA(T,V) SET_COM(T,A,V)
@@ -223,12 +226,15 @@ typedef enum {
 #define SET_COMS(T,V1,V2,V3) do{ SET_COMA(T,V1); SET_COMB(T,V2); SET_COMC(T,V3); }while(0)
 
 // Set Noise Canceler bit
+// Ex: SET_ICNC(2,1)
 #define SET_ICNC(T,V) (TCCR##T##B = (V) ? TCCR##T##B | _BV(ICNC##T) : TCCR##T##B & ~_BV(ICNC##T))
 
 // Set Input Capture Edge Select bit
+// Ex: SET_ICES(5,0)
 #define SET_ICES(T,V) (TCCR##T##B = (V) ? TCCR##T##B | _BV(ICES##T) : TCCR##T##B & ~_BV(ICES##T))
 
 // Set Force Output Compare bit
+// Ex: SET_FOC(3,A,1)
 #define SET_FOC(T,Q,V) (TCCR##T##C = (V) ? TCCR##T##C | _BV(FOC##T##Q) : TCCR##T##C & ~_BV(FOC##T##Q))
 #define SET_FOCA(T,V) SET_FOC(T,A,V)
 #define SET_FOCB(T,V) SET_FOC(T,B,V)
@@ -239,11 +245,11 @@ typedef enum {
  * PWM availability macros
  */
 
-//find out which harware PWMs are already in use
+// Determine which harware PWMs are already in use
 #if PIN_EXISTS(CONTROLLER_FAN)
-  #define PWM_CHK_FAN_B(p) (p == CONTROLLER_FAN_PIN || p == E0_AUTO_FAN_PIN || p ==  E1_AUTO_FAN_PIN || p ==  E2_AUTO_FAN_PIN || p ==  E3_AUTO_FAN_PIN || p ==  E4_AUTO_FAN_PIN)
+  #define PWM_CHK_FAN_B(p) (p == CONTROLLER_FAN_PIN || p == E0_AUTO_FAN_PIN || p ==  E1_AUTO_FAN_PIN || p ==  E2_AUTO_FAN_PIN || p ==  E3_AUTO_FAN_PIN || p ==  E4_AUTO_FAN_PIN || p == CHAMBER_AUTO_FAN_PIN)
 #else
-  #define PWM_CHK_FAN_B(p) (p == E0_AUTO_FAN_PIN || p ==  E1_AUTO_FAN_PIN || p ==  E2_AUTO_FAN_PIN || p ==  E3_AUTO_FAN_PIN || p ==  E4_AUTO_FAN_PIN)
+  #define PWM_CHK_FAN_B(p) (p == E0_AUTO_FAN_PIN || p ==  E1_AUTO_FAN_PIN || p ==  E2_AUTO_FAN_PIN || p ==  E3_AUTO_FAN_PIN || p ==  E4_AUTO_FAN_PIN || p == CHAMBER_AUTO_FAN_PIN)
 #endif
 
 #if PIN_EXISTS(FAN) || PIN_EXISTS(FAN1) || PIN_EXISTS(FAN2)
@@ -252,7 +258,7 @@ typedef enum {
   #elif PIN_EXISTS(FAN1)
     #define PWM_CHK_FAN_A(p) (p == FAN_PIN || p == FAN1_PIN)
   #else
-    #define PWM_CHK_FAN_A(p) p == FAN_PIN
+    #define PWM_CHK_FAN_A(p) (p == FAN_PIN)
   #endif
 #else
   #define PWM_CHK_FAN_A(p) false
@@ -270,15 +276,15 @@ typedef enum {
   #define PWM_CHK_MOTOR_CURRENT(p) false
 #endif
 
-#if defined(NUM_SERVOS)
+#ifdef NUM_SERVOS
   #if AVR_ATmega2560_FAMILY
-    #define PWM_CHK_SERVO(p) ( p == 5 || NUM_SERVOS > 12 && p == 6 || NUM_SERVOS > 24 && p == 46)  //PWMS 3A, 4A & 5A
+    #define PWM_CHK_SERVO(p) (p == 5 || (NUM_SERVOS > 12 && p == 6) || (NUM_SERVOS > 24 && p == 46))  // PWMS 3A, 4A & 5A
   #elif AVR_ATmega2561_FAMILY
-    #define PWM_CHK_SERVO(p)   p ==  5  //PWM3A
+    #define PWM_CHK_SERVO(p)   (p == 5)  // PWM3A
   #elif AVR_ATmega1284_FAMILY
     #define PWM_CHK_SERVO(p)   false
   #elif AVR_AT90USB1286_FAMILY
-    #define PWM_CHK_SERVO(p)   p ==  16 //PWM3A
+    #define PWM_CHK_SERVO(p)   (p == 16) // PWM3A
   #elif AVR_ATmega328_FAMILY
     #define PWM_CHK_SERVO(p)   false
   #endif
@@ -302,15 +308,15 @@ typedef enum {
 // define which hardware PWMs are available for the current CPU
 // all timer 1 PWMS deleted from this list because they are never available
 #if AVR_ATmega2560_FAMILY
-  #define PWM_PINS(p)  ((p >= 2 && p <= 10 ) || p ==  13 || p ==  44 || p ==  45 || p ==  46 )
+  #define PWM_PINS(p)  ((p >= 2 && p <= 10) || p == 13 || p == 44 || p == 45 || p == 46)
 #elif AVR_ATmega2561_FAMILY
-  #define PWM_PINS(p)  ((p >= 2 && p <= 6 ) || p ==  9)
+  #define PWM_PINS(p)  ((p >= 2 && p <= 6) || p == 9)
 #elif AVR_ATmega1284_FAMILY
-  #define PWM_PINS(p)  (p == 3 || p ==  4 || p ==  14 || p ==  15)
+  #define PWM_PINS(p)  (p == 3 || p == 4 || p == 14 || p == 15)
 #elif AVR_AT90USB1286_FAMILY
-  #define PWM_PINS(p)  (p == 0 || p ==  1 || p ==  14 || p ==  15 || p ==  16 || p ==  24)
+  #define PWM_PINS(p)  (p == 0 || p == 1 || p == 14 || p == 15 || p == 16 || p == 24)
 #elif AVR_ATmega328_FAMILY
-  #define PWM_PINS(p)  (p == 3 || p ==  5 || p ==  6 || p ==  11)
+  #define PWM_PINS(p)  (p == 3 || p == 5 || p == 6 || p == 11)
 #else
   #error "unknown CPU"
 #endif
@@ -318,4 +324,4 @@ typedef enum {
 // finally - the macro that tells us if a pin is an available hardware PWM
 #define USEABLE_HARDWARE_PWM(p) (PWM_PINS(p) && !PWM_CHK(p))
 
-#endif // _FASTIO_ARDUINO_H
+#endif // _FASTIO_ARDUINO_H_

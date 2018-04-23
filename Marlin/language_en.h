@@ -55,6 +55,9 @@
 #ifndef MSG_LCD_ENDSTOPS
   #define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
 #endif
+#ifndef MSG_LCD_SOFT_ENDSTOPS
+  #define MSG_LCD_SOFT_ENDSTOPS               _UxGT("Soft Endstops")
+#endif
 #ifndef MSG_MAIN
   #define MSG_MAIN                            _UxGT("Main")
 #endif
@@ -678,8 +681,8 @@
 #ifndef MSG_PRINT_PAUSED
   #define MSG_PRINT_PAUSED                    _UxGT("Print paused")
 #endif
-#ifndef MSG_RESUMING
-  #define MSG_RESUMING                        _UxGT("Resuming print")
+#ifndef MSG_PRINTING
+  #define MSG_PRINTING                        _UxGT("Printing...")
 #endif
 #ifndef MSG_PRINT_ABORTED
   #define MSG_PRINT_ABORTED                   _UxGT("Print aborted")
@@ -783,11 +786,17 @@
 #ifndef MSG_HEATING_FAILED_LCD
   #define MSG_HEATING_FAILED_LCD              _UxGT("Heating failed")
 #endif
+#ifndef MSG_HEATING_FAILED_LCD_BED
+  #define MSG_HEATING_FAILED_LCD_BED          _UxGT("Bed heating failed")
+#endif
 #ifndef MSG_ERR_REDUNDANT_TEMP
   #define MSG_ERR_REDUNDANT_TEMP              _UxGT("Err: REDUNDANT TEMP")
 #endif
 #ifndef MSG_THERMAL_RUNAWAY
   #define MSG_THERMAL_RUNAWAY                 _UxGT("THERMAL RUNAWAY")
+#endif
+#ifndef MSG_THERMAL_RUNAWAY_BED
+  #define MSG_THERMAL_RUNAWAY_BED             _UxGT("BED THERMAL RUNAWAY")
 #endif
 #ifndef MSG_ERR_MAXTEMP
   #define MSG_ERR_MAXTEMP                     _UxGT("Err: MAXTEMP")
@@ -802,7 +811,7 @@
   #define MSG_ERR_MINTEMP_BED                 _UxGT("Err: MINTEMP BED")
 #endif
 #ifndef MSG_ERR_Z_HOMING
-  #define MSG_ERR_Z_HOMING                    _UxGT("G28 Z Forbidden")
+  #define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #endif
 #ifndef MSG_HALTED
   #define MSG_HALTED                          _UxGT("PRINTER HALTED")
@@ -822,14 +831,14 @@
 #ifndef MSG_HEATING
   #define MSG_HEATING                         _UxGT("Heating...")
 #endif
-#ifndef MSG_HEATING_COMPLETE
-  #define MSG_HEATING_COMPLETE                _UxGT("Heating done.")
+#ifndef MSG_COOLING
+  #define MSG_COOLING                         _UxGT("Cooling...")
 #endif
 #ifndef MSG_BED_HEATING
-  #define MSG_BED_HEATING                     _UxGT("Bed Heating.")
+  #define MSG_BED_HEATING                     _UxGT("Bed heating...")
 #endif
-#ifndef MSG_BED_DONE
-  #define MSG_BED_DONE                        _UxGT("Bed done.")
+#ifndef MSG_BED_COOLING
+  #define MSG_BED_COOLING                     _UxGT("Bed cooling...")
 #endif
 #ifndef MSG_DELTA_CALIBRATE
   #define MSG_DELTA_CALIBRATE                 _UxGT("Delta Calibration")
@@ -854,6 +863,9 @@
 #endif
 #ifndef MSG_DELTA_HEIGHT_CALIBRATE
   #define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("Set Delta Height")
+#endif
+#ifndef MSG_DELTA_Z_OFFSET_CALIBRATE
+  #define MSG_DELTA_Z_OFFSET_CALIBRATE        _UxGT("Probe Z-offset")
 #endif
 #ifndef MSG_DELTA_DIAG_ROD
   #define MSG_DELTA_DIAG_ROD                  _UxGT("Diag Rod")
