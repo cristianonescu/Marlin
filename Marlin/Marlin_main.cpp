@@ -8119,6 +8119,10 @@ inline void gcode_M109() {
   }
   else return;
 
+#ifdef ANYCUBIC_TFT_MODEL
+  AnycubicTFT.HeatingStart();
+#endif
+
   #if ENABLED(AUTOTEMP)
     planner.autotemp_M104_M109();
   #endif
@@ -8191,6 +8195,10 @@ inline void gcode_M109() {
       }
     #endif
 
+    #ifdef ANYCUBIC_TFT_MODEL
+      AnycubicTFT.CommandScan();
+    #endif
+    
     #if TEMP_RESIDENCY_TIME > 0
 
       const float temp_diff = FABS(target_temp - temp);
@@ -8226,6 +8234,10 @@ inline void gcode_M109() {
     #endif
   }
 
+  #ifdef ANYCUBIC_TFT_MODEL
+  AnycubicTFT.HeatingDone();
+  #endif
+  
   #if DISABLED(BUSY_WHILE_HEATING)
     KEEPALIVE_STATE(IN_HANDLER);
   #endif
@@ -8264,6 +8276,10 @@ inline void gcode_M109() {
       #endif
     }
     else return;
+
+    #ifdef ANYCUBIC_TFT_MODEL
+        AnycubicTFT.BedHeatingStart();
+    #endif
 
     lcd_setstatusPGM(thermalManager.isHeatingBed() ? PSTR(MSG_BED_HEATING) : PSTR(MSG_BED_COOLING));
 
@@ -8336,7 +8352,11 @@ inline void gcode_M109() {
           }
         }
       #endif
-
+      
+      #ifdef ANYCUBIC_TFT_MODEL
+      AnycubicTFT.CommandScan();
+      #endif
+      
       #if TEMP_BED_RESIDENCY_TIME > 0
 
         const float temp_diff = FABS(target_temp - temp);
@@ -8365,6 +8385,10 @@ inline void gcode_M109() {
 
     } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
+    #ifdef ANYCUBIC_TFT_MODEL
+    AnycubicTFT.BedHeatingDone();
+    #endif
+    
     if (wait_for_heatup) lcd_reset_status();
     #if DISABLED(BUSY_WHILE_HEATING)
       KEEPALIVE_STATE(IN_HANDLER);
@@ -8547,6 +8571,10 @@ inline void gcode_M111() {
     #if ENABLED(ULTIPANEL)
       LCD_MESSAGEPGM(WELCOME_MSG);
     #endif
+    
+    #ifdef ANYCUBIC_TFT_MODEL
+    AnycubicTFT.CommandScan();
+    #endif
   }
 
 #endif // HAS_POWER_SWITCH
@@ -8579,6 +8607,10 @@ inline void gcode_M81() {
 
   #if ENABLED(ULTIPANEL)
     LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
+  #endif
+  
+  #ifdef ANYCUBIC_TFT_MODEL
+  AnycubicTFT.CommandScan();
   #endif
 }
 
@@ -11995,6 +12027,18 @@ void process_parsed_command() {
         case 5: gcode_G5(); break;                                // G5: Cubic B_spline
       #endif
 
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        case 6: // G6: Enable Power Loss
+          gcode_G6();
+          break;
+        case 7: // G7: Power Loss Recovery Info
+          gcode_G7();
+          break;
+        case 8: // G8: Power Loss Recovery Start
+          gcode_G8();
+          break;                    
+      #endif // POWER_LOSS_RECOVERY
+      
       #if ENABLED(FWRETRACT)
         case 10: gcode_G10(); break;                              // G10: Retract
         case 11: gcode_G11(); break;                              // G11: Prime
@@ -14025,6 +14069,10 @@ void idle(
     Max7219_idle_tasks();
   #endif  // MAX7219_DEBUG
 
+#ifdef ANYCUBIC_TFT_MODEL
+  AnycubicTFT.CommandScan();
+#endif
+  
   lcd_update();
 
   host_keepalive();
@@ -14080,6 +14128,11 @@ void kill(const char* lcd_msg) {
     kill_screen(lcd_msg);
   #else
     UNUSED(lcd_msg);
+  #endif
+  
+  #ifdef ANYCUBIC_TFT_MODEL
+    // Kill AnycubicTFT
+    AnycubicTFT.KillTFT();
   #endif
 
   _delay_ms(600); // Wait a short time (allows messages to get out before shutting down.
@@ -14171,6 +14224,12 @@ void setup() {
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
 
+  #ifdef ANYCUBIC_TFT_MODEL
+    // Setup AnycubicTFT
+    AnycubicTFT.Setup();
+    setup_OutageTestPin();
+  #endif
+    
   // Prepare communication for TMC drivers
   #if ENABLED(HAVE_TMC2130)
     tmc_init_cs_pins();
@@ -14476,4 +14535,8 @@ void loop() {
   }
   endstops.report_state();
   idle();
+
+  #ifdef ANYCUBIC_TFT_MODEL
+    AnycubicTFT.CommandScan();
+  #endif
 }
