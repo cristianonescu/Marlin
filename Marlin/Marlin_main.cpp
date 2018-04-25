@@ -14227,6 +14227,9 @@ void setup() {
   #ifdef ANYCUBIC_TFT_MODEL
     // Setup AnycubicTFT
     AnycubicTFT.Setup();
+  #endif
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
     setup_OutageTestPin();
   #endif
     
