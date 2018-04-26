@@ -66,7 +66,7 @@
 #if ENABLED(THERMAL_PROTECTION_HOTENDS)
   #define THERMAL_PROTECTION_PERIOD 40        // Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
-  
+
 // I3 Mega Protection settings :
 
 //#if ENABLED(THERMAL_PROTECTION_HOTENDS)
@@ -92,7 +92,7 @@
 #endif
 
 // I3 Mega Protection settings :
-  
+
 //  #define WATCH_TEMP_PERIOD 35                // Seconds
 //  #define WATCH_TEMP_INCREASE 10               // Degrees Celsius
 //#endif
@@ -1376,7 +1376,7 @@
 /**
  * M43 - display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins
  */
-//#define PINS_DEBUGGING
+#define PINS_DEBUGGING
 
 /**
  * Auto-report temperatures with M155 S<seconds>
