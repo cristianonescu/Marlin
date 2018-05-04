@@ -90,6 +90,7 @@ private:
   void Ls();
   void StartPrint();
   void PausePrint();
+  void ResumePrint();
   void StopPrint();
   void StateHandler();
   void GetCommandFromTFT();
