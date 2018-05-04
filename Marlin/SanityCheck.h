@@ -894,8 +894,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #if ENABLED(LCD_BED_LEVELING)
   #if DISABLED(ULTIPANEL)
     #error "LCD_BED_LEVELING requires an LCD controller."
-  #elif !(ENABLED(MESH_BED_LEVELING) || (OLDSCHOOL_ABL && ENABLED(PROBE_MANUALLY)))
-    #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or ABL with PROBE_MANUALLY."
+  #elif !(ENABLED(MESH_BED_LEVELING) || OLDSCHOOL_ABL)
+    #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or AUTO_BED_LEVELING."
   #endif
 #endif
 
@@ -1117,6 +1117,13 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  */
 #if ENABLED(TEMP_STAT_LEDS) && !PIN_EXISTS(STAT_LED_RED) && !PIN_EXISTS(STAT_LED_BLUE)
   #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
+#endif
+
+/**
+ * LED Control Menu
+ */
+#if ENABLED(LED_CONTROL_MENU) && !HAS_COLOR_LEDS
+  #error "LED_CONTROL_MENU requires BLINKM, RGB_LED, RGBW_LED, PCA9632, or NEOPIXEL_LED."
 #endif
 
 /**
@@ -1392,36 +1399,36 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  * Make sure HAVE_TMC26X is warranted
  */
 #if ENABLED(HAVE_TMC26X) && !( \
-         ENABLED(  X_IS_TMC26X ) \
-      || ENABLED( X2_IS_TMC26X ) \
-      || ENABLED(  Y_IS_TMC26X ) \
-      || ENABLED( Y2_IS_TMC26X ) \
-      || ENABLED(  Z_IS_TMC26X ) \
-      || ENABLED( Z2_IS_TMC26X ) \
-      || ENABLED( E0_IS_TMC26X ) \
-      || ENABLED( E1_IS_TMC26X ) \
-      || ENABLED( E2_IS_TMC26X ) \
-      || ENABLED( E3_IS_TMC26X ) \
-      || ENABLED( E4_IS_TMC26X ) \
+         ENABLED( X_IS_TMC26X) \
+      || ENABLED(X2_IS_TMC26X) \
+      || ENABLED( Y_IS_TMC26X) \
+      || ENABLED(Y2_IS_TMC26X) \
+      || ENABLED( Z_IS_TMC26X) \
+      || ENABLED(Z2_IS_TMC26X) \
+      || ENABLED(E0_IS_TMC26X) \
+      || ENABLED(E1_IS_TMC26X) \
+      || ENABLED(E2_IS_TMC26X) \
+      || ENABLED(E3_IS_TMC26X) \
+      || ENABLED(E4_IS_TMC26X) \
   )
   #error "HAVE_TMC26X requires at least one TMC26X stepper to be set."
 #endif
 
 /**
- * Make sure HAVE_TMC2130 is warranted
+ * TMC2130 Requirements
  */
 #if ENABLED(HAVE_TMC2130)
-  #if !( ENABLED(  X_IS_TMC2130 ) \
-      || ENABLED( X2_IS_TMC2130 ) \
-      || ENABLED(  Y_IS_TMC2130 ) \
-      || ENABLED( Y2_IS_TMC2130 ) \
-      || ENABLED(  Z_IS_TMC2130 ) \
-      || ENABLED( Z2_IS_TMC2130 ) \
-      || ENABLED( E0_IS_TMC2130 ) \
-      || ENABLED( E1_IS_TMC2130 ) \
-      || ENABLED( E2_IS_TMC2130 ) \
-      || ENABLED( E3_IS_TMC2130 ) \
-      || ENABLED( E4_IS_TMC2130 ) )
+  #if !( ENABLED( X_IS_TMC2130) \
+      || ENABLED(X2_IS_TMC2130) \
+      || ENABLED( Y_IS_TMC2130) \
+      || ENABLED(Y2_IS_TMC2130) \
+      || ENABLED( Z_IS_TMC2130) \
+      || ENABLED(Z2_IS_TMC2130) \
+      || ENABLED(E0_IS_TMC2130) \
+      || ENABLED(E1_IS_TMC2130) \
+      || ENABLED(E2_IS_TMC2130) \
+      || ENABLED(E3_IS_TMC2130) \
+      || ENABLED(E4_IS_TMC2130) )
     #error "HAVE_TMC2130 requires at least one TMC2130 stepper to be set."
   #elif ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
     #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
@@ -1489,38 +1496,36 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
- * Make sure HAVE_TMC2208 is warranted
+ * TMC2208 Requirements
  */
-#if ENABLED(HAVE_TMC2208) && !( \
-       ENABLED(  X_IS_TMC2208 ) \
-    || ENABLED( X2_IS_TMC2208 ) \
-    || ENABLED(  Y_IS_TMC2208 ) \
-    || ENABLED( Y2_IS_TMC2208 ) \
-    || ENABLED(  Z_IS_TMC2208 ) \
-    || ENABLED( Z2_IS_TMC2208 ) \
-    || ENABLED( E0_IS_TMC2208 ) \
-    || ENABLED( E1_IS_TMC2208 ) \
-    || ENABLED( E2_IS_TMC2208 ) \
-    || ENABLED( E3_IS_TMC2208 ) )
-  #error "HAVE_TMC2208 requires at least one TMC2208 stepper to be set."
-#endif
-
-/**
- * TMC2208 software UART and ENDSTOP_INTERRUPTS both use pin change interrupts (PCI)
- */
-#if ENABLED(HAVE_TMC2208) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
-       defined(X_HARDWARE_SERIAL ) \
-    || defined(X2_HARDWARE_SERIAL) \
-    || defined(Y_HARDWARE_SERIAL ) \
-    || defined(Y2_HARDWARE_SERIAL) \
-    || defined(Z_HARDWARE_SERIAL ) \
-    || defined(Z2_HARDWARE_SERIAL) \
-    || defined(E0_HARDWARE_SERIAL) \
-    || defined(E1_HARDWARE_SERIAL) \
-    || defined(E2_HARDWARE_SERIAL) \
-    || defined(E3_HARDWARE_SERIAL) \
-    || defined(E4_HARDWARE_SERIAL) )
-  #error "select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
+#if ENABLED(HAVE_TMC2208)
+  #if !( ENABLED( X_IS_TMC2208) \
+      || ENABLED(X2_IS_TMC2208) \
+      || ENABLED( Y_IS_TMC2208) \
+      || ENABLED(Y2_IS_TMC2208) \
+      || ENABLED( Z_IS_TMC2208) \
+      || ENABLED(Z2_IS_TMC2208) \
+      || ENABLED(E0_IS_TMC2208) \
+      || ENABLED(E1_IS_TMC2208) \
+      || ENABLED(E2_IS_TMC2208) \
+      || ENABLED(E3_IS_TMC2208) \
+      || ENABLED(E4_IS_TMC2208 ) )
+    #error "HAVE_TMC2208 requires at least one TMC2208 stepper to be set."
+  // Software UART and ENDSTOP_INTERRUPTS both use Pin Change interrupts (PCI)
+  #elif ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && \
+      !( defined( X_HARDWARE_SERIAL) \
+      || defined(X2_HARDWARE_SERIAL) \
+      || defined( Y_HARDWARE_SERIAL) \
+      || defined(Y2_HARDWARE_SERIAL) \
+      || defined( Z_HARDWARE_SERIAL) \
+      || defined(Z2_HARDWARE_SERIAL) \
+      || defined(E0_HARDWARE_SERIAL) \
+      || defined(E1_HARDWARE_SERIAL) \
+      || defined(E2_HARDWARE_SERIAL) \
+      || defined(E3_HARDWARE_SERIAL) \
+      || defined(E4_HARDWARE_SERIAL) )
+    #error "Select *_HARDWARE_SERIAL to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
+  #endif
 #endif
 
 #if ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
@@ -1535,17 +1540,17 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  * Make sure HAVE_L6470DRIVER is warranted
  */
 #if ENABLED(HAVE_L6470DRIVER) && !( \
-         ENABLED(  X_IS_L6470 ) \
-      || ENABLED( X2_IS_L6470 ) \
-      || ENABLED(  Y_IS_L6470 ) \
-      || ENABLED( Y2_IS_L6470 ) \
-      || ENABLED(  Z_IS_L6470 ) \
-      || ENABLED( Z2_IS_L6470 ) \
-      || ENABLED( E0_IS_L6470 ) \
-      || ENABLED( E1_IS_L6470 ) \
-      || ENABLED( E2_IS_L6470 ) \
-      || ENABLED( E3_IS_L6470 ) \
-      || ENABLED( E4_IS_L6470 ) \
+         ENABLED( X_IS_L6470) \
+      || ENABLED(X2_IS_L6470) \
+      || ENABLED( Y_IS_L6470) \
+      || ENABLED(Y2_IS_L6470) \
+      || ENABLED( Z_IS_L6470) \
+      || ENABLED(Z2_IS_L6470) \
+      || ENABLED(E0_IS_L6470) \
+      || ENABLED(E1_IS_L6470) \
+      || ENABLED(E2_IS_L6470) \
+      || ENABLED(E3_IS_L6470) \
+      || ENABLED(E4_IS_L6470) \
   )
   #error "HAVE_L6470DRIVER requires at least one L6470 stepper to be set."
 #endif
