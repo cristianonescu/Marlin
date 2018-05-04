@@ -1090,7 +1090,7 @@ inline void get_serial_commands() {
         }
       }
 
-      #if DISABLED(EMERGENCY_PARSER)
+      #if ENABLED(EMERGENCY_PARSER)
         // If command was e-stop process now
         if (strcmp(command, "M108") == 0) {
           wait_for_heatup = false;
@@ -6513,6 +6513,7 @@ inline void gcode_M17() {
       if (card.sdprinting) {
         card.pauseSDPrint();
         sd_print_paused = true;
+        SERIAL_ECHOLNPGM("M600 Pause SD print done(pause_print)");
       }
     #endif
     print_job_timer.pause();
@@ -6542,7 +6543,7 @@ inline void gcode_M17() {
           idle();
         #endif
       }
-
+      SERIAL_ECHOLNPGM("M600 Unload filament(pause_print)");
       // Unload filament
       do_pause_e_move(unload_length, FILAMENT_CHANGE_UNLOAD_FEEDRATE);
     }
@@ -6580,6 +6581,7 @@ inline void gcode_M17() {
     // Wait for filament insert by user and press button
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_for_user = true;    // LCD click or M108 will clear this
+    SERIAL_ECHOLNPGM("M600 Pause wait M108(wait_for_filament_reload)");
     while (wait_for_user) {
       #if HAS_BUZZER
         filament_change_beep(max_beep_count);
@@ -6595,7 +6597,7 @@ inline void gcode_M17() {
         #if ENABLED(ULTIPANEL)
           lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
         #endif
-
+        SERIAL_ECHOLNPGM("M600 Pause wait M108 nozzle timeout(wait_for_filament_reload)");
         // Wait for LCD click or M108
         while (wait_for_user) idle(true);
 
@@ -6614,7 +6616,7 @@ inline void gcode_M17() {
 
         HOTEND_LOOP()
           thermalManager.start_heater_idle_timer(e, nozzle_timeout);
-
+          SERIAL_ECHOLNPGM("M600 Pause wait M108 Load filament(wait_for_filament_reload)");
         wait_for_user = true; /* Wait for user to load filament */
         nozzle_timed_out = false;
 
@@ -6653,7 +6655,7 @@ inline void gcode_M17() {
         if (nozzle_timed_out)
           lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT);
       #endif
-
+    SERIAL_ECHOLNPGM("M600 Pause wait M108(resume_print)");
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       wait_for_user = true;    // LCD click or M108 will clear this
       while (wait_for_user && nozzle_timed_out) {
@@ -7839,7 +7841,7 @@ inline void gcode_M109() {
     #ifdef ANYCUBIC_TFT_MODEL
       AnycubicTFT.CommandScan();
     #endif
-    
+
     #if TEMP_RESIDENCY_TIME > 0
 
       const float temp_diff = FABS(target_temp - temp);
@@ -7878,7 +7880,7 @@ inline void gcode_M109() {
   #ifdef ANYCUBIC_TFT_MODEL
   AnycubicTFT.HeatingDone();
   #endif
-  
+
   #if DISABLED(BUSY_WHILE_HEATING)
     KEEPALIVE_STATE(IN_HANDLER);
   #endif
@@ -7984,11 +7986,11 @@ inline void gcode_M109() {
           }
         }
       #endif
-      
+
       #ifdef ANYCUBIC_TFT_MODEL
       AnycubicTFT.CommandScan();
       #endif
-      
+
       #if TEMP_BED_RESIDENCY_TIME > 0
 
         const float temp_diff = FABS(target_temp - temp);
@@ -8020,7 +8022,7 @@ inline void gcode_M109() {
     #ifdef ANYCUBIC_TFT_MODEL
     AnycubicTFT.BedHeatingDone();
     #endif
-    
+
     if (wait_for_heatup) LCD_MESSAGEPGM(MSG_BED_DONE);
     #if DISABLED(BUSY_WHILE_HEATING)
       KEEPALIVE_STATE(IN_HANDLER);
@@ -8213,7 +8215,7 @@ inline void gcode_M140() {
     #if ENABLED(ULTIPANEL)
       LCD_MESSAGEPGM(WELCOME_MSG);
     #endif
-    
+
     #ifdef ANYCUBIC_TFT_MODEL
     AnycubicTFT.CommandScan();
     #endif
@@ -8256,7 +8258,7 @@ inline void gcode_M81() {
   #if ENABLED(ULTIPANEL)
     LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
   #endif
-  
+
   #ifdef ANYCUBIC_TFT_MODEL
   AnycubicTFT.CommandScan();
   #endif
@@ -10103,10 +10105,13 @@ inline void gcode_M502() {
     );
 
     const bool job_running = print_job_timer.isRunning();
-
+    SERIAL_ECHOLNPGM("M600 Main start");
     if (pause_print(retract, park_point, unload_length, beep_count, true)) {
+      SERIAL_ECHOLNPGM("M600 Pause print done");
       wait_for_filament_reload(beep_count);
+      SERIAL_ECHOLNPGM("M600 Filament reload done");
       resume_print(load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, beep_count);
+      SERIAL_ECHOLNPGM("M600 Resume print done");
     }
 
     // Resume the print job timer if it was running
@@ -14054,7 +14059,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     if ((IS_SD_PRINTING || print_job_timer.isRunning()) && (READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING))
       handle_filament_runout();
   #endif
-  
+
   #if ENABLED(ANYCUBIC_TFT_MODEL) && ENABLED(ANYCUBIC_FILAMENT_RUNOUT_SENSOR)
   AnycubicTFT.FilamentRunout();
   #endif
@@ -14236,7 +14241,7 @@ void idle(
 #ifdef ANYCUBIC_TFT_MODEL
   AnycubicTFT.CommandScan();
 #endif
-  
+
   lcd_update();
 
   host_keepalive();
@@ -14288,7 +14293,7 @@ void kill(const char* lcd_msg) {
   #else
     UNUSED(lcd_msg);
   #endif
-  
+
   #ifdef ANYCUBIC_TFT_MODEL
     // Kill AnycubicTFT
     AnycubicTFT.KillTFT();
@@ -14382,7 +14387,7 @@ void setup() {
   MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
-  
+
   #ifdef ANYCUBIC_TFT_MODEL
     // Setup AnycubicTFT
     AnycubicTFT.Setup();
