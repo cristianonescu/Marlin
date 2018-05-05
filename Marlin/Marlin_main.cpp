@@ -786,14 +786,14 @@ void report_current_position_detail();
     print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); }while(0)
 #endif
 
-#if ENABLED(POWER_LOSS_RECOVERY) 
+#if ENABLED(POWER_LOSS_RECOVERY)
   void setup_OutageTestPin(){
   pinMode(OUTAGETEST_PIN,INPUT);
   pinMode(OUTAGECON_PIN,OUTPUT);
   WRITE(OUTAGECON_PIN,LOW);
   }
 #endif
-  
+
 /**
  * sync_plan_position
  *
@@ -1118,9 +1118,10 @@ inline void get_serial_commands() {
         // Process critical commands early
         if (strcmp(command, "M108") == 0) {
           wait_for_heatup = false;
-          #if ENABLED(NEWPANEL)
+          //#if ENABLED(ULTIPANEL)
+            SERIAL_ECHOLNPGM("M108 Restart");
             wait_for_user = false;
-          #endif
+          //#endif
         }
         if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
         if (strcmp(command, "M410") == 0) quickstop_stepper();
@@ -3576,31 +3577,31 @@ inline void gcode_G4() {
   }
 
   inline void gcode_G6() {
-	#ifdef POWER_LOSS_RECOVERY 
+	#ifdef POWER_LOSS_RECOVERY
       WRITE(OUTAGECON_PIN,HIGH);
       if(1==READ(OUTAGETEST_PIN))
       {
           #ifdef POWER_LOSS_RECOVERY
-            attachInterrupt(PowerInt,PowerKill,CHANGE);     //INITIAL SET 
+            attachInterrupt(PowerInt,PowerKill,CHANGE);     //INITIAL SET
             SERIAL_ECHOLNPGM("G6 POWER LOSS RECOVERY ACTIVATED");
-          #endif                     
-      }    
-       #endif 
+          #endif
+      }
+       #endif
   }
-  
+
   inline void gcode_G7() {
-  #ifdef POWER_LOSS_RECOVERY       
+  #ifdef POWER_LOSS_RECOVERY
       PowerRecoveryInfo();
-  #endif 
+  #endif
   }
 
   inline void gcode_G8() {
-  #ifdef POWER_LOSS_RECOVERY       
+  #ifdef POWER_LOSS_RECOVERY
       PowerRecovery();
-  #endif 
+  #endif
   }
 
-#endif // POWER_LOSS_RECOVERY  
+#endif // POWER_LOSS_RECOVERY
 
 #if ENABLED(FWRETRACT)
 
@@ -8211,7 +8212,7 @@ inline void gcode_M109() {
     #ifdef ANYCUBIC_TFT_MODEL
       AnycubicTFT.CommandScan();
     #endif
-    
+
     #if TEMP_RESIDENCY_TIME > 0
 
       const float temp_diff = FABS(target_temp - temp);
@@ -8250,7 +8251,7 @@ inline void gcode_M109() {
   #ifdef ANYCUBIC_TFT_MODEL
   AnycubicTFT.HeatingDone();
   #endif
-  
+
   #if DISABLED(BUSY_WHILE_HEATING)
     KEEPALIVE_STATE(IN_HANDLER);
   #endif
@@ -8365,11 +8366,11 @@ inline void gcode_M109() {
           }
         }
       #endif
-      
+
       #ifdef ANYCUBIC_TFT_MODEL
       AnycubicTFT.CommandScan();
       #endif
-      
+
       #if TEMP_BED_RESIDENCY_TIME > 0
 
         const float temp_diff = FABS(target_temp - temp);
@@ -8401,7 +8402,7 @@ inline void gcode_M109() {
     #ifdef ANYCUBIC_TFT_MODEL
     AnycubicTFT.BedHeatingDone();
     #endif
-    
+
     if (wait_for_heatup) lcd_reset_status();
     #if DISABLED(BUSY_WHILE_HEATING)
       KEEPALIVE_STATE(IN_HANDLER);
@@ -8584,7 +8585,7 @@ inline void gcode_M111() {
     #if ENABLED(ULTIPANEL)
       LCD_MESSAGEPGM(WELCOME_MSG);
     #endif
-    
+
     #ifdef ANYCUBIC_TFT_MODEL
     AnycubicTFT.CommandScan();
     #endif
@@ -8621,7 +8622,7 @@ inline void gcode_M81() {
   #if ENABLED(ULTIPANEL)
     LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
   #endif
-  
+
   #ifdef ANYCUBIC_TFT_MODEL
   AnycubicTFT.CommandScan();
   #endif
@@ -12116,9 +12117,9 @@ void process_parsed_command() {
           break;
         case 8: // G8: Power Loss Recovery Start
           gcode_G8();
-          break;                    
+          break;
       #endif // POWER_LOSS_RECOVERY
-      
+
       #if ENABLED(FWRETRACT)
         case 10: gcode_G10(); break;                              // G10: Retract
         case 11: gcode_G11(); break;                              // G11: Prime
@@ -14159,7 +14160,7 @@ void idle(
 #ifdef ANYCUBIC_TFT_MODEL
   AnycubicTFT.CommandScan();
 #endif
-  
+
   lcd_update();
 
   host_keepalive();
@@ -14216,7 +14217,7 @@ void kill(const char* lcd_msg) {
   #else
     UNUSED(lcd_msg);
   #endif
-  
+
   #ifdef ANYCUBIC_TFT_MODEL
     // Kill AnycubicTFT
     AnycubicTFT.KillTFT();
@@ -14319,7 +14320,7 @@ void setup() {
   #if ENABLED(POWER_LOSS_RECOVERY)
     setup_OutageTestPin();
   #endif
-    
+
   // Prepare communication for TMC drivers
   #if ENABLED(HAVE_TMC2130)
     tmc_init_cs_pins();
