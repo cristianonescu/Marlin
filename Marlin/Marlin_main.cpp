@@ -1114,7 +1114,7 @@ inline void get_serial_commands() {
         }
       }
 
-      #if DISABLED(EMERGENCY_PARSER)
+      #if ENABLED(EMERGENCY_PARSER)
         // Process critical commands early
         if (strcmp(command, "M108") == 0) {
           wait_for_heatup = false;
@@ -6967,7 +6967,8 @@ inline void gcode_M17() {
         #endif
 
         // Wait for LCD click or M108
-        while (wait_for_user) idle(true);
+        // TO CHECK
+        //while (wait_for_user) idle(true);
 
         // Re-enable the heaters if they timed out
         HOTEND_LOOP() thermalManager.reset_heater_idle_timer(e);
@@ -6993,7 +6994,8 @@ inline void gcode_M17() {
         HOTEND_LOOP()
           thermalManager.start_heater_idle_timer(e, nozzle_timeout);
 
-        wait_for_user = true; // Wait for user to load filament
+        // TO Check
+        // wait_for_user = true; // Wait for user to load filament
         nozzle_timed_out = false;
 
         #if HAS_BUZZER

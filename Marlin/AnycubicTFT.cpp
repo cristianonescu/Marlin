@@ -144,6 +144,12 @@ void AnycubicTFTClass::StartPrint(){
 
 void AnycubicTFTClass::ResumePrint(){
   enqueue_and_echo_commands_P(PSTR("M108"));
+  // Re-enable the heaters if they timed out
+  HOTEND_LOOP() thermalManager.reset_heater_idle_timer(e);
+  // Wait for the heaters to reach the target temperatures
+  while (wait_for_heatup && thermalManager.wait_for_heating(active_extruder)) idle();
+  wait_for_heatup = false;
+  wait_for_user = false;
   //TFTstate=ANYCUBIC_TFT_STATE_SDPRINT;
   #ifdef ANYCUBIC_TFT_DEBUG
     SERIAL_ECHOLNPGM("TFT Serial Debug: M108 resume print after M600");
@@ -180,8 +186,7 @@ void AnycubicTFTClass::StopPrint(){
   card.stopSDPrint();
   clear_command_queue();
   quickstop_stepper();
-  // Is this required?
-  //print_job_timer.stop();
+//  print_job_timer.stop();
   thermalManager.disable_all_heaters();
   #if FAN_COUNT > 0
     for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
@@ -395,6 +400,12 @@ void AnycubicTFTClass::StateHandler()
       }
       break;
   case ANYCUBIC_TFT_STATE_SDPAUSE:
+    if(card.sdprinting){
+      TFTstate=ANYCUBIC_TFT_STATE_SDPRINT;
+      #ifdef ANYCUBIC_TFT_DEBUG
+        SERIAL_ECHOLNPGM("TFT Serial Debug: Pause is over");
+      #endif
+    }
     break;
   case ANYCUBIC_TFT_STATE_SDPAUSE_OOF:
     #ifdef ANYCUBIC_FILAMENT_RUNOUT_SENSOR
@@ -628,11 +639,13 @@ void AnycubicTFTClass::GetCommandFromTFT()
           case 10: // A10 resume sd print
             if((TFTstate==ANYCUBIC_TFT_STATE_SDPAUSE) || (TFTstate==ANYCUBIC_TFT_STATE_SDOUTAGE))
             {
+              //wait_for_user = false;
               ResumePrint();
-              ANYCUBIC_SERIAL_PROTOCOLPGM("J04");// J04 printing form sd card now
-              ANYCUBIC_SERIAL_ENTER();
+              //ANYCUBIC_SERIAL_PROTOCOLPGM("J04");// J04 printing form sd card now
+              //ANYCUBIC_SERIAL_ENTER();
               #ifdef ANYCUBIC_TFT_DEBUG
-                SERIAL_ECHOLNPGM("TFT Serial Debug: SD print started... J04");
+                //SERIAL_ECHOLNPGM("TFT Serial Debug: SD print started... J04");
+                SERIAL_ECHOLNPGM("TFT Serial Debug: M108 to be sent");
               #endif
             }
             break;
