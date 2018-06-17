@@ -108,10 +108,10 @@
 		#define LCD_PINS_D7 29
 		
 		#ifdef REPRAP_DISCOUNT_SMART_CONTROLLER
-			#define BEEPER_PIN 31
+			#define BEEPER_PIN 37
 			
 			#define BTN_EN1 33
-			#define BTN_EN2 33
+			#define BTN_EN2 31
 			#define BTN_ENC 35
 			
 			#define SD_DETECT_PIN 49
@@ -145,7 +145,7 @@
 				// #define LCD_SCREEN_ROT_270
 				//The encoder and click button
 				#define BTN_EN1 33
-				#define BTN_EN2 -1
+				#define BTN_EN2 31
 				#define BTN_ENC 35  //the click switch
 				//not connected to a pin
 				#define SD_DETECT_PIN 49
@@ -165,8 +165,8 @@
 				// #define LCD_SCREEN_ROT_180
 				// #define LCD_SCREEN_ROT_270
 				//The encoder and click button
-				#define BTN_EN1 -1
-				#define BTN_EN2 33
+				#define BTN_EN1 33
+				#define BTN_EN2 31
 				#define BTN_ENC 35  //the click switch
 				//not connected to a pin
 				#define SD_DETECT_PIN 49
