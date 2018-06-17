@@ -42,18 +42,21 @@
  * the bleeding-edge source code, but sometimes this is not enough. This check
  * forces a minimum config file revision. Otherwise Marlin will not build.
  */
-#if !defined(CONFIGURATION_H_VERSION) || CONFIGURATION_H_VERSION < REQUIRED_CONFIGURATION_H_VERSION
+#define HEXIFY(H) _CAT(0x,H)
+#if !defined(CONFIGURATION_H_VERSION) || HEXIFY(CONFIGURATION_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_H_VERSION)
   #error "You are using an old Configuration.h file, update it before building Marlin."
 #endif
 
-#if !defined(CONFIGURATION_ADV_H_VERSION) || CONFIGURATION_ADV_H_VERSION < REQUIRED_CONFIGURATION_ADV_H_VERSION
+#if !defined(CONFIGURATION_ADV_H_VERSION) || HEXIFY(CONFIGURATION_ADV_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_ADV_H_VERSION)
   #error "You are using an old Configuration_adv.h file, update it before building Marlin."
 #endif
 
 /**
  * Warnings for old configurations
  */
-#if !defined(X_BED_SIZE) || !defined(Y_BED_SIZE)
+#ifndef MOTHERBOARD
+  #error "MOTHERBOARD is required. Please update your configuration."
+#elif !defined(X_BED_SIZE) || !defined(Y_BED_SIZE)
   #error "X_BED_SIZE and Y_BED_SIZE are now required! Please update your configuration."
 #elif WATCH_TEMP_PERIOD > 500
   #error "WATCH_TEMP_PERIOD now uses seconds instead of milliseconds."
@@ -272,6 +275,14 @@
   #error "FILAMENT_CHANGE_LOAD_LENGTH is now FILAMENT_CHANGE_FAST_LOAD_LENGTH. Please update your configuration."
 #elif ENABLED(LEVEL_BED_CORNERS) && !defined(LEVEL_CORNERS_INSET)
   #error "LEVEL_BED_CORNERS requires a LEVEL_CORNERS_INSET value. Please update your Configuration.h."
+#elif defined(BEZIER_JERK_CONTROL)
+  #error "BEZIER_JERK_CONTROL is now S_CURVE_ACCELERATION. Please update your configuration."
+#elif defined(JUNCTION_DEVIATION_FACTOR)
+  #error "JUNCTION_DEVIATION_FACTOR is now JUNCTION_DEVIATION_MM. Please update your configuration."
+#elif defined(JUNCTION_ACCELERATION_FACTOR)
+  #error "JUNCTION_ACCELERATION_FACTOR is obsolete. Delete it from Configuration_adv.h."
+#elif defined(JUNCTION_ACCELERATION)
+  #error "JUNCTION_ACCELERATION is obsolete. Delete it from Configuration_adv.h."
 #endif
 
 #define BOARD_MKS_13     -47
@@ -306,7 +317,7 @@
 /**
  * Serial
  */
-#if !(defined(__AVR__) && defined(USBCON))
+#if USE_MARLINSERIAL
   #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
     #error "SERIAL_XON_XOFF requires RX_BUFFER_SIZE >= 1024 for reliable transfers without drops."
   #elif RX_BUFFER_SIZE && (RX_BUFFER_SIZE < 2 || !IS_POWER_OF_2(RX_BUFFER_SIZE))
@@ -919,15 +930,11 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  */
 #if ENABLED(Z_SAFE_HOMING)
   #if HAS_BED_PROBE
-    static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, MIN_PROBE_X, MAX_PROBE_X),
-      "Z_SAFE_HOMING_X_POINT is outside the probe region.");
-    static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, MIN_PROBE_Y, MAX_PROBE_Y),
-      "Z_SAFE_HOMING_Y_POINT is outside the probe region.");
+    static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, MIN_PROBE_X, MAX_PROBE_X), "Z_SAFE_HOMING_X_POINT is outside the probe region.");
+    static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, MIN_PROBE_Y, MAX_PROBE_Y), "Z_SAFE_HOMING_Y_POINT is outside the probe region.");
   #else
-    static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, X_MIN_POS, X_MAX_POS),
-      "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle.");
-    static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_POS, Y_MAX_POS),
-      "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle.");
+    static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, X_MIN_POS, X_MAX_POS), "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle.");
+    static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_POS, Y_MAX_POS), "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle.");
   #endif
 #endif // Z_SAFE_HOMING
 
@@ -965,8 +972,12 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 /**
  * SAV_3DGLCD display options
  */
-#if ENABLED(U8GLIB_SSD1306) && ENABLED(U8GLIB_SH1106)
-  #error "Only enable one SAV_3DGLCD display type: U8GLIB_SSD1306 or U8GLIB_SH1106."
+#if ENABLED(SAV_3DGLCD)
+  #if DISABLED(U8GLIB_SSD1306) && DISABLED(U8GLIB_SH1106)
+    #error "Enable a SAV_3DGLCD display type: U8GLIB_SSD1306 or U8GLIB_SH1106."
+  #elif ENABLED(U8GLIB_SSD1306) && ENABLED(U8GLIB_SH1106)
+    #error "Only enable one SAV_3DGLCD display type: U8GLIB_SSD1306 or U8GLIB_SH1106."
+  #endif
 #endif
 
 /**
@@ -1205,18 +1216,18 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #if ENABLED(X_DUAL_ENDSTOPS)
   #if !X2_USE_ENDSTOP
     #error "You must set X2_USE_ENDSTOP with X_DUAL_ENDSTOPS."
-  #elif X2_USE_ENDSTOP == _X_MIN_ && DISABLED(USE_XMIN_PLUG)
-    #error "USE_XMIN_PLUG is required when X2_USE_ENDSTOP is _X_MIN_."
-  #elif X2_USE_ENDSTOP == _X_MAX_ && DISABLED(USE_XMAX_PLUG)
-    #error "USE_XMAX_PLUG is required when X2_USE_ENDSTOP is _X_MAX_."
-  #elif X2_USE_ENDSTOP == _Y_MIN_ && DISABLED(USE_YMIN_PLUG)
-    #error "USE_YMIN_PLUG is required when X2_USE_ENDSTOP is _Y_MIN_."
-  #elif X2_USE_ENDSTOP == _Y_MAX_ && DISABLED(USE_YMAX_PLUG)
-    #error "USE_YMAX_PLUG is required when X2_USE_ENDSTOP is _Y_MAX_."
-  #elif X2_USE_ENDSTOP == _Z_MIN_ && DISABLED(USE_ZMIN_PLUG)
-    #error "USE_ZMIN_PLUG is required when X2_USE_ENDSTOP is _Z_MIN_."
-  #elif X2_USE_ENDSTOP == _Z_MAX_ && DISABLED(USE_ZMAX_PLUG)
-    #error "USE_ZMAX_PLUG is required when X2_USE_ENDSTOP is _Z_MAX_."
+  #elif X2_USE_ENDSTOP == _XMIN_ && DISABLED(USE_XMIN_PLUG)
+    #error "USE_XMIN_PLUG is required when X2_USE_ENDSTOP is _XMIN_."
+  #elif X2_USE_ENDSTOP == _XMAX_ && DISABLED(USE_XMAX_PLUG)
+    #error "USE_XMAX_PLUG is required when X2_USE_ENDSTOP is _XMAX_."
+  #elif X2_USE_ENDSTOP == _YMIN_ && DISABLED(USE_YMIN_PLUG)
+    #error "USE_YMIN_PLUG is required when X2_USE_ENDSTOP is _YMIN_."
+  #elif X2_USE_ENDSTOP == _YMAX_ && DISABLED(USE_YMAX_PLUG)
+    #error "USE_YMAX_PLUG is required when X2_USE_ENDSTOP is _YMAX_."
+  #elif X2_USE_ENDSTOP == _ZMIN_ && DISABLED(USE_ZMIN_PLUG)
+    #error "USE_ZMIN_PLUG is required when X2_USE_ENDSTOP is _ZMIN_."
+  #elif X2_USE_ENDSTOP == _ZMAX_ && DISABLED(USE_ZMAX_PLUG)
+    #error "USE_ZMAX_PLUG is required when X2_USE_ENDSTOP is _ZMAX_."
   #elif !HAS_X2_MIN && !HAS_X2_MAX
     #error "X2_USE_ENDSTOP has been assigned to a nonexistent endstop!"
   #elif ENABLED(DELTA)
@@ -1226,18 +1237,18 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #if ENABLED(Y_DUAL_ENDSTOPS)
   #if !Y2_USE_ENDSTOP
     #error "You must set Y2_USE_ENDSTOP with Y_DUAL_ENDSTOPS."
-  #elif Y2_USE_ENDSTOP == _X_MIN_ && DISABLED(USE_XMIN_PLUG)
-    #error "USE_XMIN_PLUG is required when Y2_USE_ENDSTOP is _X_MIN_."
-  #elif Y2_USE_ENDSTOP == _X_MAX_ && DISABLED(USE_XMAX_PLUG)
-    #error "USE_XMAX_PLUG is required when Y2_USE_ENDSTOP is _X_MAX_."
-  #elif Y2_USE_ENDSTOP == _Y_MIN_ && DISABLED(USE_YMIN_PLUG)
-    #error "USE_YMIN_PLUG is required when Y2_USE_ENDSTOP is _Y_MIN_."
-  #elif Y2_USE_ENDSTOP == _Y_MAX_ && DISABLED(USE_YMAX_PLUG)
-    #error "USE_YMAX_PLUG is required when Y2_USE_ENDSTOP is _Y_MAX_."
-  #elif Y2_USE_ENDSTOP == _Z_MIN_ && DISABLED(USE_ZMIN_PLUG)
-    #error "USE_ZMIN_PLUG is required when Y2_USE_ENDSTOP is _Z_MIN_."
-  #elif Y2_USE_ENDSTOP == _Z_MAX_ && DISABLED(USE_ZMAX_PLUG)
-    #error "USE_ZMAX_PLUG is required when Y2_USE_ENDSTOP is _Z_MAX_."
+  #elif Y2_USE_ENDSTOP == _XMIN_ && DISABLED(USE_XMIN_PLUG)
+    #error "USE_XMIN_PLUG is required when Y2_USE_ENDSTOP is _XMIN_."
+  #elif Y2_USE_ENDSTOP == _XMAX_ && DISABLED(USE_XMAX_PLUG)
+    #error "USE_XMAX_PLUG is required when Y2_USE_ENDSTOP is _XMAX_."
+  #elif Y2_USE_ENDSTOP == _YMIN_ && DISABLED(USE_YMIN_PLUG)
+    #error "USE_YMIN_PLUG is required when Y2_USE_ENDSTOP is _YMIN_."
+  #elif Y2_USE_ENDSTOP == _YMAX_ && DISABLED(USE_YMAX_PLUG)
+    #error "USE_YMAX_PLUG is required when Y2_USE_ENDSTOP is _YMAX_."
+  #elif Y2_USE_ENDSTOP == _ZMIN_ && DISABLED(USE_ZMIN_PLUG)
+    #error "USE_ZMIN_PLUG is required when Y2_USE_ENDSTOP is _ZMIN_."
+  #elif Y2_USE_ENDSTOP == _ZMAX_ && DISABLED(USE_ZMAX_PLUG)
+    #error "USE_ZMAX_PLUG is required when Y2_USE_ENDSTOP is _ZMAX_."
   #elif !HAS_Y2_MIN && !HAS_Y2_MAX
     #error "Y2_USE_ENDSTOP has been assigned to a nonexistent endstop!"
   #elif ENABLED(DELTA)
@@ -1247,18 +1258,18 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #if ENABLED(Z_DUAL_ENDSTOPS)
   #if !Z2_USE_ENDSTOP
     #error "You must set Z2_USE_ENDSTOP with Z_DUAL_ENDSTOPS."
-  #elif Z2_USE_ENDSTOP == _X_MIN_ && DISABLED(USE_XMIN_PLUG)
-    #error "USE_XMIN_PLUG is required when Z2_USE_ENDSTOP is _X_MIN_."
-  #elif Z2_USE_ENDSTOP == _X_MAX_ && DISABLED(USE_XMAX_PLUG)
-    #error "USE_XMAX_PLUG is required when Z2_USE_ENDSTOP is _X_MAX_."
-  #elif Z2_USE_ENDSTOP == _Y_MIN_ && DISABLED(USE_YMIN_PLUG)
-    #error "USE_YMIN_PLUG is required when Z2_USE_ENDSTOP is _Y_MIN_."
-  #elif Z2_USE_ENDSTOP == _Y_MAX_ && DISABLED(USE_YMAX_PLUG)
-    #error "USE_YMAX_PLUG is required when Z2_USE_ENDSTOP is _Y_MAX_."
-  #elif Z2_USE_ENDSTOP == _Z_MIN_ && DISABLED(USE_ZMIN_PLUG)
-    #error "USE_ZMIN_PLUG is required when Z2_USE_ENDSTOP is _Z_MIN_."
-  #elif Z2_USE_ENDSTOP == _Z_MAX_ && DISABLED(USE_ZMAX_PLUG)
-    #error "USE_ZMAX_PLUG is required when Z2_USE_ENDSTOP is _Z_MAX_."
+  #elif Z2_USE_ENDSTOP == _XMIN_ && DISABLED(USE_XMIN_PLUG)
+    #error "USE_XMIN_PLUG is required when Z2_USE_ENDSTOP is _XMIN_."
+  #elif Z2_USE_ENDSTOP == _XMAX_ && DISABLED(USE_XMAX_PLUG)
+    #error "USE_XMAX_PLUG is required when Z2_USE_ENDSTOP is _XMAX_."
+  #elif Z2_USE_ENDSTOP == _YMIN_ && DISABLED(USE_YMIN_PLUG)
+    #error "USE_YMIN_PLUG is required when Z2_USE_ENDSTOP is _YMIN_."
+  #elif Z2_USE_ENDSTOP == _YMAX_ && DISABLED(USE_YMAX_PLUG)
+    #error "USE_YMAX_PLUG is required when Z2_USE_ENDSTOP is _YMAX_."
+  #elif Z2_USE_ENDSTOP == _ZMIN_ && DISABLED(USE_ZMIN_PLUG)
+    #error "USE_ZMIN_PLUG is required when Z2_USE_ENDSTOP is _ZMIN_."
+  #elif Z2_USE_ENDSTOP == _ZMAX_ && DISABLED(USE_ZMAX_PLUG)
+    #error "USE_ZMAX_PLUG is required when Z2_USE_ENDSTOP is _ZMAX_."
   #elif !HAS_Z2_MIN && !HAS_Z2_MAX
     #error "Z2_USE_ENDSTOP has been assigned to a nonexistent endstop!"
   #elif ENABLED(DELTA)
@@ -1269,7 +1280,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 /**
  * emergency-command parser
  */
-#if ENABLED(EMERGENCY_PARSER) && defined(__AVR__) && defined(USBCON)
+#if ENABLED(EMERGENCY_PARSER) && !USE_MARLINSERIAL
   #error "EMERGENCY_PARSER does not work on boards with AT90USB processors (USBCON)."
 #endif
 
