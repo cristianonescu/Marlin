@@ -265,7 +265,7 @@
   #include "pins_5DPRINT.h"           // AT90USB1286
 #elif MB(TRIGORILLA)
   #include "pins_TRIGORILLA.h"
-  
+
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
