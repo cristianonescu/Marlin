@@ -140,6 +140,8 @@
   #include "pins_TRIGORILLA_14.h"     // ATmega2560
 #elif MB(RAMPS_ENDER_4)
   #include "pins_RAMPS_ENDER_4.h"     // ATmega2560
+#elif MB(TRIGORILLA)
+  #include "pins_TRIGORILLA.h"        // ATmega2560
 
 //
 // Other ATmega1280, ATmega2560
