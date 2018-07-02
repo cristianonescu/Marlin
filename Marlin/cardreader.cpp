@@ -61,7 +61,7 @@ CardReader::CardReader() {
   #if SDPOWER > -1
     OUT_WRITE(SDPOWER, HIGH);
   #endif
-}
+  }
 
 char *createFilename(char *buffer, const dir_t &p) { //buffer > 12characters
   char *pos = buffer;
@@ -969,7 +969,7 @@ void CardReader::printingHasFinished() {
     const bool success = jobRecoveryFile.remove(&root, job_recovery_file_name);
     #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
       SERIAL_PROTOCOLPGM("Power-loss file delete");
-      serialprintPGM(success ? PSTR("d.") : PSTR(" failed."))
+      serialprintPGM(success ? PSTR("d.") : PSTR(" failed."));
     #else
       UNUSED(success);
     #endif
