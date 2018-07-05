@@ -27,6 +27,8 @@
 #include "../../lcd/ultralcd.h"
 #include "../../Marlin.h"
 
+#include "../../anycubic/AnycubicTFT.h"
+
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
   #include "../../module/printcounter.h"
 #endif
@@ -70,6 +72,10 @@ void GcodeSuite::M104() {
       }
     #endif
   }
+
+  #ifdef ANYCUBIC_TFT_MODEL
+    AnycubicTFT.HeatingStart();
+  #endif
 
   #if ENABLED(AUTOTEMP)
     planner.autotemp_M104_M109();
@@ -205,6 +211,10 @@ void GcodeSuite::M109() {
       }
     #endif
 
+    #ifdef ANYCUBIC_TFT_MODEL
+      AnycubicTFT.CommandScan();
+    #endif
+
     #if TEMP_RESIDENCY_TIME > 0
 
       const float temp_diff = ABS(target_temp - temp);
@@ -239,6 +249,10 @@ void GcodeSuite::M109() {
       leds.set_white();
     #endif
   }
+
+  #ifdef ANYCUBIC_TFT_MODEL
+    AnycubicTFT.HeatingDone();
+  #endif
 
   #if DISABLED(BUSY_WHILE_HEATING)
     KEEPALIVE_STATE(IN_HANDLER);

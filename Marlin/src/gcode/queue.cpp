@@ -32,6 +32,7 @@
 #include "../module/planner.h"
 #include "../module/temperature.h"
 #include "../Marlin.h"
+#include "../anycubic/AnycubicTFT.h"
 
 #if HAS_COLOR_LEDS
   #include "../feature/leds/leds.h"
@@ -585,5 +586,7 @@ void advance_command_queue() {
     --commands_in_queue;
     if (++cmd_queue_index_r >= BUFSIZE) cmd_queue_index_r = 0;
   }
-
+  #ifdef ANYCUBIC_TFT_MODEL
+    AnycubicTFT.CommandScan();
+  #endif
 }

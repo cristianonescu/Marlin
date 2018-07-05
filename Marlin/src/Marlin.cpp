@@ -150,6 +150,10 @@
   #include "feature/controllerfan.h"
 #endif
 
+#ifdef ANYCUBIC_TFT_MODEL
+  #include "anycubic/AnycubicTFT.h"
+#endif
+
 bool Running = true;
 
 /**
@@ -331,6 +335,10 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     runout.run();
+  #endif
+
+  #if ENABLED(ANYCUBIC_TFT_MODEL) && ENABLED(ANYCUBIC_FILAMENT_RUNOUT_SENSOR)
+    AnycubicTFT.FilamentRunout();
   #endif
 
   if (commands_in_queue < BUFSIZE) get_available_commands();
@@ -538,6 +546,10 @@ void idle(
     Max7219_idle_tasks();
   #endif
 
+  #ifdef ANYCUBIC_TFT_MODEL
+    AnycubicTFT.CommandScan();
+  #endif
+
   lcd_update();
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -599,6 +611,11 @@ void kill(const char* lcd_msg) {
     kill_screen(lcd_msg);
   #else
     UNUSED(lcd_msg);
+  #endif
+
+  #ifdef ANYCUBIC_TFT_MODEL
+    // Kill AnycubicTFT
+    AnycubicTFT.KillTFT();
   #endif
 
   _delay_ms(600); // Wait a short time (allows messages to get out before shutting down.
@@ -712,6 +729,11 @@ void setup() {
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
 
+  #ifdef ANYCUBIC_TFT_MODEL
+    // Setup AnycubicTFT
+    AnycubicTFT.Setup();
+  #endif
+  
   #if ENABLED(HAVE_TMC2130)
     tmc_init_cs_pins();
   #endif

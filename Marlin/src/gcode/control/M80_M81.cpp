@@ -26,6 +26,8 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#include "../../anycubic/AnycubicTFT.h"
+
 #if ENABLED(ULTIPANEL)
   #include "../../lcd/ultralcd.h"
 #endif
@@ -81,6 +83,10 @@
       restore_stepper_drivers();
     #endif
 
+    #ifdef ANYCUBIC_TFT_MODEL
+      AnycubicTFT.CommandScan();
+    #endif
+
     #if ENABLED(ULTIPANEL)
       lcd_reset_status();
     #endif
@@ -115,5 +121,9 @@ void GcodeSuite::M81() {
 
   #if ENABLED(ULTIPANEL)
     LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
+  #endif
+
+  #ifdef ANYCUBIC_TFT_MODEL
+    AnycubicTFT.CommandScan();
   #endif
 }
