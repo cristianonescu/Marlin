@@ -84,6 +84,10 @@ void GcodeSuite::M23() {
  * M24: Start or Resume SD Print
  */
 void GcodeSuite::M24() {
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    card.removeJobRecoveryFile();
+  #endif
+
   #if ENABLED(PARK_HEAD_ON_PAUSE)
     resume_print();
   #endif

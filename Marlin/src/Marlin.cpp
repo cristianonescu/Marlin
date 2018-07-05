@@ -154,6 +154,14 @@
   #include "anycubic/AnycubicTFT.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  void setup_OutageTestPin(){
+  pinMode(OUTAGETEST_PIN,INPUT);
+  pinMode(OUTAGECON_PIN,OUTPUT);
+  WRITE(OUTAGECON_PIN,LOW);
+  }
+#endif
+
 bool Running = true;
 
 /**
@@ -732,8 +740,9 @@ void setup() {
   #ifdef ANYCUBIC_TFT_MODEL
     // Setup AnycubicTFT
     AnycubicTFT.Setup();
+    setup_OutageTestPin();
   #endif
-  
+
   #if ENABLED(HAVE_TMC2130)
     tmc_init_cs_pins();
   #endif

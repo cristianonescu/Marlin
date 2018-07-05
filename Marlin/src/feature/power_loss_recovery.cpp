@@ -270,4 +270,40 @@ void save_job_recovery_info() {
   }
 }
 
+void PowerKill()
+{
+     #ifdef POWER_LOSS_RECOVERY
+       //debug_print_job_recovery(false);
+       SERIAL_ECHOLNPGM("G6 POWER LOSS RECOVERY ACTIVATED");
+       save_job_recovery_info();
+     #endif
+
+    /*#ifdef DEBUG_POWER_LOSS_RECOVERY
+       //save_job_recovery_info();
+       SERIAL_ECHOLNPGM("G5 POWER LOSS RECOVERY DEBUG");
+       debug_print_job_recovery(false);
+    #endif*/
+}
+
+void PowerRecoveryInfo()
+{
+     #ifdef DEBUG_POWER_LOSS_RECOVERY
+       //debug_print_job_recovery(false);
+       SERIAL_ECHOLNPGM("G7 POWER LOSS RECOVERY INFO");
+       debug_print_job_recovery(true);
+     #endif
+}
+
+void PowerRecovery()
+{
+     #ifdef POWER_LOSS_RECOVERY
+       //debug_print_job_recovery(false);
+       SERIAL_ECHOLNPGM("G8 POWER LOSS RECOVERY FROM SD");
+       //lcd_sdcard_recover_job();
+       //do_print_job_recovery();
+       check_print_job_recovery();
+     #endif
+
+}
+
 #endif // POWER_LOSS_RECOVERY

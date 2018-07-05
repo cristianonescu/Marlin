@@ -571,7 +571,8 @@ void advance_command_queue() {
     else {
       gcode.process_next_command();
       #if ENABLED(POWER_LOSS_RECOVERY)
-        if (card.cardOK && card.sdprinting) save_job_recovery_info();
+//    Do not write on SD everytime
+//        if (card.cardOK && card.sdprinting) save_job_recovery_info();
       #endif
     }
 

@@ -356,6 +356,12 @@ private:
     static void G5();
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    static void G6();
+    static void G7();
+    static void G8();
+  #endif
+
   #if ENABLED(FWRETRACT)
     static void G10();
     static void G11();

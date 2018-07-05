@@ -134,7 +134,7 @@ void GcodeSuite::dwell(millis_t time) {
   #ifndef G29_MAX_RETRIES
     #define G29_MAX_RETRIES 0
   #endif
-   
+
   void GcodeSuite::G29_with_retry() {
     uint8_t retries = G29_MAX_RETRIES;
     while (G29()) { // G29 should return true for failed probes ONLY
@@ -144,7 +144,7 @@ void GcodeSuite::dwell(millis_t time) {
         #endif
         #ifdef G29_RECOVER_COMMANDS
           process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
-        #endif   
+        #endif
       }
       else {
         #ifdef G29_FAILURE_COMMANDS
@@ -202,6 +202,18 @@ void GcodeSuite::process_parsed_command(
 
       #if ENABLED(BEZIER_CURVE_SUPPORT)
         case 5: G5(); break;                                      // G5: Cubic B_spline
+      #endif
+
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        case 6: G6(); break;// G6: Enable Power Loss
+          //gcode_G6();
+          //break;
+        case 7: G7(); break;// G7: Power Loss Recovery Info
+          //gcode_G7();
+          //break;
+        case 8: G8(); break;// G8: Power Loss Recovery Start
+          //gcode_G8();
+          //break;
       #endif
 
       #if ENABLED(FWRETRACT)

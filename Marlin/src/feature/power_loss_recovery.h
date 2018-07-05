@@ -95,5 +95,8 @@ extern uint8_t job_recovery_commands_count;
 
 void check_print_job_recovery();
 void save_job_recovery_info();
+void PowerRecoveryInfo();
+void PowerRecovery();
+void PowerKill();
 
 #endif // _POWER_LOSS_RECOVERY_H_
