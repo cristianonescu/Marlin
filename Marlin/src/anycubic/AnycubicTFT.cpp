@@ -221,16 +221,19 @@ void AnycubicTFTClass::HandleSpecialMenu()
   } else if (strcmp(SelectedDirectory, "<save eeprom>")==0) {
     SERIAL_PROTOCOLLNPGM("Special Menu: Save EEPROM");
     enqueue_and_echo_commands_P(PSTR("M500"));
-  } else if (strcmp(SelectedDirectory, "<read eeprom>")==0) {
-    SERIAL_PROTOCOLLNPGM("Special Menu: Read EEPROM");
-    enqueue_and_echo_commands_P(PSTR("M501"));
   } else if (strcmp(SelectedDirectory, "<hotend maintenance>")==0) {
     SERIAL_PROTOCOLLNPGM("Special Menu: HotEnd Maintenance");
     enqueue_and_echo_commands_P(PSTR("G28\nG0 X100 Y100 Z125 F5000"));
   } else if (strcmp(SelectedDirectory, "<preheat 200 60>")==0) {
     SERIAL_PROTOCOLLNPGM("Special Menu: PreHeat 200 60");
     enqueue_and_echo_commands_P(PSTR("M140 S60\nM104 S200 T0"));
-  } else if (strcmp(SelectedDirectory, "<exit>")==0) {
+  } else if (strcmp(SelectedDirectory, "<pause m600>")==0) {
+    SERIAL_PROTOCOLLNPGM("Special Menu: pause m600");
+    PausePrint();
+  } else if (strcmp(SelectedDirectory, "<restart after m600>")==0) {
+    SERIAL_PROTOCOLLNPGM("Special Menu: Restart after M600");
+    ResumePrint();
+  }else if (strcmp(SelectedDirectory, "<exit>")==0) {
     SpecialMenu=false;
   }
 }
@@ -244,19 +247,21 @@ void AnycubicTFTClass::Ls()
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Exit>");
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<PreHeat 200 60>");
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<PreHeat 200 60>");
-        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Bed Leveling>");
-        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Bed Leveling>");
-        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<HotEnd Maintenance>");
-        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<HotEnd Maintenance>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Pause M600>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Pause M600>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Restart after M600>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Restart after M600>");
         break;
 
       case 4: // Second Page
-        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Read EEPROM>");
-        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Read EEPROM>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Bed Leveling>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Bed Leveling>");
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Save EEPROM>");
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Save EEPROM>");
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Tune Hotend PID>");
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Tune Hotend PID>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<HotEnd Maintenance>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<HotEnd Maintenance>");
         break;
 
       default:
@@ -909,11 +914,11 @@ void AnycubicTFTClass::GetCommandFromTFT()
           case 30: // A30 assist leveling, the original function was canceled
             if(CodeSeen('S')) {
 #ifdef ANYCUBIC_TFT_DEBUG
-              SERIAL_ECHOLNPGM("TFT Entering level menue...");
+              SERIAL_ECHOLNPGM("TFT Entering level menu...");
 #endif
             } else if(CodeSeen('O')) {
 #ifdef ANYCUBIC_TFT_DEBUG
-              SERIAL_ECHOLNPGM("TFT Leveling started and movint to front left...");
+              SERIAL_ECHOLNPGM("TFT Leveling started and moving to front left...");
 #endif
               enqueue_and_echo_commands_P(PSTR("G91\nG1 Z10 F240\nG90\nG28\nG29\nG1 X20 Y20 F6000\nG1 Z0 F240"));
             } else if(CodeSeen('T')) {
