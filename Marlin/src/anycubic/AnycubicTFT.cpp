@@ -188,7 +188,7 @@ void AnycubicTFTClass::StopPrint(){
   card.stopSDPrint();
   clear_command_queue();
   quickstop_stepper();
-//  print_job_timer.stop();
+  print_job_timer.stop();
   thermalManager.disable_all_heaters();
   #if FAN_COUNT > 0
     for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
@@ -674,7 +674,8 @@ void AnycubicTFTClass::GetCommandFromTFT()
             kill(PSTR(MSG_KILLED));
             break;
           case 13: // A13 SELECTION FILE
-            if((!planner.movesplanned()) && (TFTstate!=ANYCUBIC_TFT_STATE_SDPAUSE) && (TFTstate!=ANYCUBIC_TFT_STATE_SDOUTAGE))
+            //if((!planner.movesplanned()) && (TFTstate!=ANYCUBIC_TFT_STATE_SDPAUSE) && (TFTstate!=ANYCUBIC_TFT_STATE_SDOUTAGE))
+            if((TFTstate!=ANYCUBIC_TFT_STATE_SDOUTAGE))
             {
               starpos = (strchr(TFTstrchr_pointer + 4,'*'));
               if (TFTstrchr_pointer[4] == '/') {
@@ -855,7 +856,7 @@ void AnycubicTFTClass::GetCommandFromTFT()
             if((!planner.movesplanned())&& (TFTstate!=ANYCUBIC_TFT_STATE_SDPAUSE) && (TFTstate!=ANYCUBIC_TFT_STATE_SDOUTAGE))
             {
               if((current_position[Z_AXIS]<10)) enqueue_and_echo_commands_P(PSTR("G1 Z10")); // RAISE Z AXIS
-              thermalManager.setTargetBed(50);
+              thermalManager.setTargetBed(60);
               thermalManager.setTargetHotend(200, 0);
               ANYCUBIC_SERIAL_SUCC_START;
               ANYCUBIC_SERIAL_ENTER();
