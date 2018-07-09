@@ -927,9 +927,9 @@ void setup() {
     pe_magnet_init();
   #endif
 
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    check_print_job_recovery();
-  #endif
+  //#if ENABLED(POWER_LOSS_RECOVERY)
+  //  check_print_job_recovery();
+  //#endif
 
   #if ENABLED(USE_WATCHDOG) // Reinit watchdog after HAL_get_reset_source call
     watchdog_init();

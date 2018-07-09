@@ -233,6 +233,9 @@ void AnycubicTFTClass::HandleSpecialMenu()
   } else if (strcmp(SelectedDirectory, "<restart after m600>")==0) {
     SERIAL_PROTOCOLLNPGM("Special Menu: Restart after M600");
     ResumePrint();
+  } else if (strcmp(SelectedDirectory, "<outage recover>")==0) {
+    SERIAL_PROTOCOLLNPGM("Special Menu: Outage Recover");
+    enqueue_and_echo_commands_P(PSTR("G8"));
   }else if (strcmp(SelectedDirectory, "<exit>")==0) {
     SpecialMenu=false;
   }
@@ -254,14 +257,19 @@ void AnycubicTFTClass::Ls()
         break;
 
       case 4: // Second Page
-        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Bed Leveling>");
-        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Bed Leveling>");
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Save EEPROM>");
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Save EEPROM>");
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Tune Hotend PID>");
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Tune Hotend PID>");
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<HotEnd Maintenance>");
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<HotEnd Maintenance>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Outage Recover>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Outage Recover>");
+        break;
+
+      case 8: // Third Page
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Bed Leveling>");
+        ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Auto Bed Leveling>");
         break;
 
       default:
