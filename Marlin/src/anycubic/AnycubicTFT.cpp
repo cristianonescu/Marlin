@@ -312,19 +312,19 @@ void AnycubicTFTClass::Ls()
           ANYCUBIC_SERIAL_PROTOCOLPGM("/");
           ANYCUBIC_SERIAL_PROTOCOLLN(card.filename);
           ANYCUBIC_SERIAL_PROTOCOLPGM("/");
-          ANYCUBIC_SERIAL_PROTOCOLLN(card.filename);
-          //ANYCUBIC_SERIAL_PROTOCOLLN(card.longFilename);
+          //ANYCUBIC_SERIAL_PROTOCOLLN(card.filename);
+          ANYCUBIC_SERIAL_PROTOCOLLN(card.longFilename);
           SERIAL_PROTOCOL(cnt);
           SERIAL_PROTOCOLPGM("/");
-          //SERIAL_PROTOCOLLN(card.longFilename);
-          SERIAL_PROTOCOLLN(card.filename);
+          SERIAL_PROTOCOLLN(card.longFilename);
+          //SERIAL_PROTOCOLLN(card.filename);
         } else {
           ANYCUBIC_SERIAL_PROTOCOLLN(card.filename);
-          //ANYCUBIC_SERIAL_PROTOCOLLN(card.longFilename);
-          ANYCUBIC_SERIAL_PROTOCOLLN(card.filename);
+          ANYCUBIC_SERIAL_PROTOCOLLN(card.longFilename);
+          //ANYCUBIC_SERIAL_PROTOCOLLN(card.filename);
           SERIAL_PROTOCOL(cnt);
-          //SERIAL_PROTOCOLLN(card.longFilename);
-          SERIAL_PROTOCOLLN(card.filename);
+          SERIAL_PROTOCOLLN(card.longFilename);
+          //SERIAL_PROTOCOLLN(card.filename);
         }
       }
     }
@@ -779,7 +779,12 @@ void AnycubicTFTClass::GetCommandFromTFT()
           case 20:// A20 read printing speed
           {
             if(CodeSeen('S')){
-              feedrate_percentage=constrain(CodeValue(),40,999);}
+              feedrate_percentage=constrain(CodeValue(),40,999);
+              if((!planner.movesplanned()) && ENABLED(ADVANCED_PAUSE_FEATURE)){
+                SERIAL_ECHOLNPGM("TFT Serial Debug: Restart after M600");
+                ResumePrint();
+              }
+            }
             else{
               ANYCUBIC_SERIAL_PROTOCOLPGM("A20V ");
               ANYCUBIC_SERIAL_PROTOCOL(feedrate_percentage);
@@ -980,12 +985,12 @@ void AnycubicTFTClass::GetCommandFromTFT()
 
               if(CodeSeen('S')){
                 ANYCUBIC_SERIAL_PROTOCOLPGM("A9V ");
-//                ANYCUBIC_SERIAL_PROTOCOL(itostr3(int(zprobe_zoffset*100.00 + 0.5)));
+                ANYCUBIC_SERIAL_PROTOCOL(itostr3(int(zprobe_zoffset*100.00 + 0.5)));
                 ANYCUBIC_SERIAL_ENTER();
 #ifdef ANYCUBIC_TFT_DEBUG
                 SERIAL_ECHOPGM("TFT sending current z-probe offset data... <");
                 SERIAL_ECHOPGM("A9V ");
-//                SERIAL_ECHO(itostr3(int(zprobe_zoffset*100.00 + 0.5)));
+                SERIAL_ECHO(itostr3(int(zprobe_zoffset*100.00 + 0.5)));
                 SERIAL_ECHOLNPGM(">");
 #endif
               }
