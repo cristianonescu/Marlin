@@ -366,9 +366,10 @@ inline void get_serial_commands() {
           // Process critical commands early
           if (strcmp(command, "M108") == 0) {
             wait_for_heatup = false;
-            #if ENABLED(ULTIPANEL)
+            //#if ENABLED(ULTIPANEL)
+              SERIAL_ECHOLNPGM("M108 Restart");
               wait_for_user = false;
-            #endif
+            //#endif
           }
           if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
           if (strcmp(command, "M410") == 0) quickstop_stepper();

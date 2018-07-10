@@ -443,7 +443,7 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/) {
       #endif
 
       // Wait for LCD click or M108
-      while (wait_for_user) idle(true);
+      //while (wait_for_user) idle(true);
 
       // Re-enable the heaters if they timed out
       HOTEND_LOOP() thermalManager.reset_heater_idle_timer(e);
@@ -469,7 +469,7 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/) {
       HOTEND_LOOP()
         thermalManager.start_heater_idle_timer(e, nozzle_timeout);
 
-      wait_for_user = true; // Wait for user to load filament
+      //wait_for_user = true; // Wait for user to load filament
       nozzle_timed_out = false;
 
       #if HAS_BUZZER
