@@ -257,11 +257,8 @@ void Endstops::not_homing() {
 }
 
 // If the last move failed to trigger an endstop, call kill
-void Endstops::validate_homing_move() {
-  if (!trigger_state()) {
-    kill(PSTR(MSG_ERR_HOMING_FAILED));
-    //SERIAL_ECHOLNPGM("KILL HOMING MOVE");
-    }
+void Endstops::validate_homing_move() {	 void Endstops::validate_homing_move() {
+  if (!trigger_state()) kill(PSTR(MSG_ERR_HOMING_FAILED));
   hit_on_purpose();
 }
 
