@@ -188,7 +188,7 @@ void AnycubicTFTClass::StopPrint(){
   card.stopSDPrint();
   clear_command_queue();
   quickstop_stepper();
-  print_job_timer.stop();
+//  print_job_timer.stop();
   thermalManager.disable_all_heaters();
   #if FAN_COUNT > 0
     for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
@@ -312,19 +312,19 @@ void AnycubicTFTClass::Ls()
           ANYCUBIC_SERIAL_PROTOCOLPGM("/");
           ANYCUBIC_SERIAL_PROTOCOLLN(card.filename);
           ANYCUBIC_SERIAL_PROTOCOLPGM("/");
-          //ANYCUBIC_SERIAL_PROTOCOLLN(card.filename);
-          ANYCUBIC_SERIAL_PROTOCOLLN(card.longFilename);
+          ANYCUBIC_SERIAL_PROTOCOLLN(card.filename);
+          //ANYCUBIC_SERIAL_PROTOCOLLN(card.longFilename);
           SERIAL_PROTOCOL(cnt);
           SERIAL_PROTOCOLPGM("/");
-          SERIAL_PROTOCOLLN(card.longFilename);
-          //SERIAL_PROTOCOLLN(card.filename);
+          //SERIAL_PROTOCOLLN(card.longFilename);
+          SERIAL_PROTOCOLLN(card.filename);
         } else {
           ANYCUBIC_SERIAL_PROTOCOLLN(card.filename);
-          ANYCUBIC_SERIAL_PROTOCOLLN(card.longFilename);
-          //ANYCUBIC_SERIAL_PROTOCOLLN(card.filename);
+          //ANYCUBIC_SERIAL_PROTOCOLLN(card.longFilename);
+          ANYCUBIC_SERIAL_PROTOCOLLN(card.filename);
           SERIAL_PROTOCOL(cnt);
-          SERIAL_PROTOCOLLN(card.longFilename);
-          //SERIAL_PROTOCOLLN(card.filename);
+          //SERIAL_PROTOCOLLN(card.longFilename);
+          SERIAL_PROTOCOLLN(card.filename);
         }
       }
     }
@@ -675,7 +675,7 @@ void AnycubicTFTClass::GetCommandFromTFT()
             break;
           case 13: // A13 SELECTION FILE
             //if((!planner.movesplanned()) && (TFTstate!=ANYCUBIC_TFT_STATE_SDPAUSE) && (TFTstate!=ANYCUBIC_TFT_STATE_SDOUTAGE))
-            if((TFTstate!=ANYCUBIC_TFT_STATE_SDOUTAGE))
+            if(TFTstate!=ANYCUBIC_TFT_STATE_SDOUTAGE)
             {
               starpos = (strchr(TFTstrchr_pointer + 4,'*'));
               if (TFTstrchr_pointer[4] == '/') {
@@ -986,12 +986,12 @@ void AnycubicTFTClass::GetCommandFromTFT()
 
               if(CodeSeen('S')){
                 ANYCUBIC_SERIAL_PROTOCOLPGM("A9V ");
-                ANYCUBIC_SERIAL_PROTOCOL(itostr3(int(zprobe_zoffset*100.00 + 0.5)));
+//                ANYCUBIC_SERIAL_PROTOCOL(itostr3(int(zprobe_zoffset*100.00 + 0.5)));
                 ANYCUBIC_SERIAL_ENTER();
 #ifdef ANYCUBIC_TFT_DEBUG
                 SERIAL_ECHOPGM("TFT sending current z-probe offset data... <");
                 SERIAL_ECHOPGM("A9V ");
-                SERIAL_ECHO(itostr3(int(zprobe_zoffset*100.00 + 0.5)));
+//                SERIAL_ECHO(itostr3(int(zprobe_zoffset*100.00 + 0.5)));
                 SERIAL_ECHOLNPGM(">");
 #endif
               }
